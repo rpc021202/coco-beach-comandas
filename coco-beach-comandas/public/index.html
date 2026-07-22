@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a1628">
+  <title>Coco Beach · Comandas</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #0a1628;
+      --surface: #141f35;
+      --surface2: #1e2d4a;
+      --border: #2a3f60;
+      --text: #f0f4ff;
+      --muted: #7a90b8;
+      --green: #22c55e;
+      --green-dark: #15803d;
+      --red: #ef4444;
+      --accent: #3b82f6;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    /* ── Layout ── */
+    #app { display: flex; flex-direction: column; height: 100dvh; }
+
+    /* ── Header ── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 15px;
+      font-weight: 800;
+      color: #f0a030;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    .mesa-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .mesa-lbl {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .mesa-input {
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 800;
+      padding: 4px 10px;
+      width: 72px;
+      text-align: center;
+      -moz-appearance: textfield;
+    }
+    .mesa-input::-webkit-outer-spin-button,
+    .mesa-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .mesa-input:focus { border-color: var(--accent); outline: none; }
+
+    .cart-toggle {
+      background: var(--green-dark);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .badge {
+      background: var(--red);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+
+    /* ── Main scroll area ── */
+    .main { flex: 1; overflow-y: auto; padding: 12px; }
+
+    /* ── Category grid ── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .cat-btn {
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      cursor: pointer;
+      padding: 18px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s, filter 0.1s;
+      position: relative;
+    }
+    .cat-btn:active { transform: scale(0.93); filter: brightness(0.85); }
+
+    .cat-emoji { font-size: 30px; line-height: 1; }
+    .cat-name { font-size: 14px; font-weight: 700; letter-spacing: 0.3px; }
+    .cat-count {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+
+    /* ── Product view ── */
+    .back-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-heading {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prod-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .prod-btn {
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      cursor: pointer;
+      padding: 14px 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+      transition: transform 0.1s;
+    }
+    .prod-btn:active { transform: scale(0.93); }
+    .prod-btn.in-cart { border-color: var(--green); background: #0d2118; }
+
+    .prod-name { font-size: 13px; font-weight: 700; line-height: 1.2; }
+    .prod-price { font-size: 12px; color: var(--muted); }
+
+    .prod-badge {
+      position: absolute;
+      top: -8px; right: -8px;
+      background: var(--green);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      min-width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Cart overlay ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 50;
+    }
+    .overlay.open { display: flex; align-items: flex-end; }
+
+    .cart-panel {
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      border-top: 1px solid var(--border);
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 16px;
+      width: 100%;
+    }
+
+    .cart-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .cart-title { font-size: 17px; font-weight: 800; }
+    .close-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 6px 12px;
+    }
+
+    .cart-mesa-info {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .cart-mesa-info strong { color: var(--text); }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--surface2);
+    }
+    .cart-item-name { flex: 1; font-size: 15px; font-weight: 600; }
+    .cart-item-price { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+    .qty-ctrl { display: flex; align-items: center; gap: 6px; }
+    .qty-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .qty-num { font-size: 16px; font-weight: 800; min-width: 22px; text-align: center; }
+
+    .nota-wrap { margin: 14px 0; }
+    .nota-lbl { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .nota-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 12px;
+      width: 100%;
+      resize: none;
+    }
+    .nota-input:focus { border-color: var(--accent); outline: none; }
+
+    .send-btn {
+      background: var(--green);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 16px;
+      width: 100%;
+      margin-bottom: 10px;
+      transition: transform 0.1s;
+    }
+    .send-btn:active { transform: scale(0.97); }
+    .send-btn:disabled { background: var(--surface2); color: var(--muted); cursor: default; }
+
+    .clear-btn {
+      background: transparent;
+      border: 1px solid var(--red);
+      border-radius: 10px;
+      color: var(--red);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px;
+      width: 100%;
+    }
+
+    .empty-cart { text-align: center; color: var(--muted); padding: 24px; font-size: 14px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a2a1a;
+      border: 1px solid var(--green);
+      border-radius: 10px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 20px;
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.err { background: #2a1a1a; border-color: var(--red); color: var(--red); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="logo">🏖️ COCO BEACH</span>
+    <div class="mesa-wrap">
+      <span class="mesa-lbl">Mesa:</span>
+      <input type="number" class="mesa-input" id="mesaInput" placeholder="—" min="1" max="99">
+    </div>
+    <button class="cart-toggle" onclick="openCart()">
+      🛒 <span class="badge" id="badge">0</span>
+    </button>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="main">
+    <div class="cat-grid" id="viewCats"></div>
+    <div id="viewProds" style="display:none"></div>
+  </div>
+
+</div>
+
+<!-- Cart overlay -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="cart-panel" id="cartPanel">
+    <div class="cart-head">
+      <span class="cart-title">🛒 Comanda</span>
+      <button class="close-btn" onclick="closeCart()">Cerrar</button>
+    </div>
+    <div class="cart-mesa-info" id="cartMesaInfo">Mesa: <strong id="cartMesaNum">—</strong></div>
+    <div id="cartItems"></div>
+    <div class="nota-wrap">
+      <div class="nota-lbl">Nota (opcional):</div>
+      <textarea class="nota-input" id="nota" rows="2" placeholder="p.ej. sin hielo, bien frío..."></textarea>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="enviar()">📤 ENVIAR COMANDA</button>
+    <button class="clear-btn" onclick="clearCart()">Vaciar carrito</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CARTA ──────────────────────────────────────────────────────────────────
+const MENU = [
+  { cat: 'Refrescos', emoji: '🥤', color: '#dc2626', items: [
+    { n: 'CocaCola', p: 2.50 }, { n: 'CocaCola Zero', p: 2.50 },
+    { n: 'Fanta limón', p: 2.50 }, { n: 'Fanta naranja', p: 2.50 },
+    { n: 'Aquarius limón', p: 2.50 }, { n: 'Aquarius naranja', p: 2.50 },
+    { n: 'Sprite', p: 2.50 }, { n: 'Fuze tea limón', p: 2.50 },
+    { n: 'Fuze tea maracuyá', p: 2.50 }, { n: 'Schweppes tónica', p: 2.50 },
+    { n: 'Schweppes limón', p: 2.50 }, { n: 'Zumo', p: 2.00 },
+    { n: 'Bitter', p: 3.00 }, { n: 'Monster', p: 3.50 }
+  ]},
+  { cat: 'Agua', emoji: '💧', color: '#2563eb', items: [
+    { n: 'Agua', p: 1.20 }, { n: 'Agua con gas', p: 2.00 }
+  ]},
+  { cat: 'Café', emoji: '☕', color: '#78350f', items: [
+    { n: 'Café solo', p: 1.50 }, { n: 'Cortado', p: 1.80 },
+    { n: 'Café con leche', p: 2.20 }, { n: 'Bombón', p: 2.20 },
+    { n: 'ColaCao', p: 0.30 }, { n: '+Hielo', p: 0.50 }, { n: 'Tocaet', p: 1.80 }
+  ]},
+  { cat: 'Cerveza', emoji: '🍺', color: '#b45309', items: [
+    { n: 'Caña Águila', p: 1.80 }, { n: 'Doble Águila', p: 2.80 },
+    { n: 'Caña Radler', p: 3.50 }, { n: 'Doble Radler', p: 3.50 },
+    { n: 'Ladrón Verano', p: 3.00 }, { n: 'Águila 1/3', p: 3.00 },
+    { n: 'Heineken', p: 3.50 }, { n: 'Amstel Oro', p: 3.50 },
+    { n: 'Amstel Oro 0,0', p: 3.50 }, { n: 'Heineken 0,0', p: 3.50 },
+    { n: 'Desperados', p: 3.50 }, { n: 'Cruzcampo 1904', p: 3.50 },
+    { n: '18/70', p: 3.50 }, { n: 'Ladrón Manzanas', p: 3.50 },
+    { n: 'Águila sin filtrar', p: 3.50 }, { n: 'Sin gluten', p: 1.50 },
+    { n: 'Clara Doble', p: 3.80 }, { n: 'Tonti', p: 9.00 }, { n: 'Pinta', p: 3.50 }
+  ]},
+  { cat: 'Snacks', emoji: '🥔', color: '#16a34a', items: [
+    { n: 'Papas', p: 2.80 }
+  ]},
+  { cat: 'Granizado', emoji: '🧊', color: '#0891b2', items: [
+    { n: 'Granizado', p: 3.50 }, { n: 'Granizado Sirope', p: 3.50 },
+    { n: 'Granizado Tocado', p: 3.50 }, { n: 'Granizado Sirope Tocado', p: 4.00 },
+    { n: 'Granizado Tocado Premium', p: 4.50 }, { n: 'Gran. Sirope Tocado Premium', p: 5.00 }
+  ]},
+  { cat: 'Cóctel', emoji: '🍹', color: '#7c3aed', items: [
+    { n: 'Cóctel', p: 6.00 }, { n: 'Cóctel sin alcohol', p: 8.00 }
+  ]},
+  { cat: 'Copas', emoji: '🥃', color: '#475569', items: [
+    { n: 'Copa', p: 9.00 }, { n: 'Copa premium', p: 10.00 },
+    { n: 'Copa premium +', p: 1.00 }, { n: '+Monster', p: 4.00 }
+  ]},
+  { cat: 'Vermut', emoji: '🍷', color: '#9f1239', items: [
+    { n: 'Martini', p: 5.80 }, { n: 'Aperol Spritz', p: 3.00 }, { n: 'Vino blanco', p: 2.50 }
+  ]},
+  { cat: 'Chupito', emoji: '🥂', color: '#c2410c', items: [
+    { n: 'Tequila', p: 2.00 }, { n: 'Tequila rosa', p: 2.50 },
+    { n: 'Jägermeister', p: 2.00 }, { n: 'Licor Arroz', p: 2.00 },
+    { n: 'Vodka Azul', p: 2.50 }, { n: 'Cazalla', p: 2.00 },
+    { n: 'Pólvora', p: 2.50 }, { n: 'Fireball', p: 3.80 }
+  ]}
+];
+
+// ─── Estado ──────────────────────────────────────────────────────────────────
+let cart = {}; // { 'CocaCola': 2 }
+let activeCat = null;
+
+// ─── Helpers precio ──────────────────────────────────────────────────────────
+function fmt(p) { return p.toFixed(2).replace('.', ',') + ' €'; }
+
+function getItem(nombre) {
+  for (const cat of MENU) {
+    const found = cat.items.find(i => i.n === nombre);
+    if (found) return found;
+  }
+  return null;
+}
+
+// ─── Render categorías ───────────────────────────────────────────────────────
+function renderCats() {
+  const el = document.getElementById('viewCats');
+  el.innerHTML = MENU.map(cat => {
+    const count = cat.items.reduce((s, i) => s + (cart[i.n] || 0), 0);
+    return `
+      <button class="cat-btn" style="background:${cat.color}" onclick="showCat(${MENU.indexOf(cat)})">
+        ${count > 0 ? `<span class="cat-count">${count}</span>` : ''}
+        <span class="cat-emoji">${cat.emoji}</span>
+        <span class="cat-name">${cat.cat}</span>
+      </button>`;
+  }).join('');
+}
+
+// ─── Render productos ────────────────────────────────────────────────────────
+function showCat(idx) {
+  activeCat = MENU[idx];
+  document.getElementById('viewCats').style.display = 'none';
+  const el = document.getElementById('viewProds');
+  el.style.display = 'block';
+
+  el.innerHTML = `
+    <button class="back-btn" onclick="showCats()">← Categorías</button>
+    <div class="cat-heading">${activeCat.emoji} ${activeCat.cat}</div>
+    <div class="prod-grid">
+      ${activeCat.items.map(item => {
+        const qty = cart[item.n] || 0;
+        return `
+          <button class="prod-btn ${qty > 0 ? 'in-cart' : ''}" id="pb-${esc(item.n)}" onclick="addItem('${esc(item.n)}')">
+            ${qty > 0 ? `<span class="prod-badge">${qty}</span>` : ''}
+            <span class="prod-name">${item.n}</span>
+            <span class="prod-price">${fmt(item.p)}</span>
+          </button>`;
+      }).join('')}
+    </div>`;
+}
+
+function esc(s) { return s.replace(/'/g, "\\'"); }
+
+function showCats() {
+  activeCat = null;
+  document.getElementById('viewProds').style.display = 'none';
+  document.getElementById('viewCats').style.display = 'grid';
+  renderCats();
+}
+
+// ─── Añadir al carrito ───────────────────────────────────────────────────────
+function addItem(nombre) {
+  cart[nombre] = (cart[nombre] || 0) + 1;
+  updateBadge();
+
+  // Actualizar botón del producto
+  const btn = document.getElementById('pb-' + nombre);
+  if (btn) {
+    const qty = cart[nombre];
+    btn.className = 'prod-btn in-cart';
+    btn.innerHTML = `
+      <span class="prod-badge">${qty}</span>
+      <span class="prod-name">${nombre}</span>
+      <span class="prod-price">${fmt(getItem(nombre)?.p || 0)}</span>`;
+    btn.animate([
+      { backgroundColor: '#22c55e', transform: 'scale(1.05)' },
+      { backgroundColor: '#0d2118', transform: 'scale(1)' }
+    ], { duration: 250 });
+  }
+}
+
+function updateBadge() {
+  const total = Object.values(cart).reduce((s, v) => s + v, 0);
+  document.getElementById('badge').textContent = total;
+}
+
+// ─── Cart ────────────────────────────────────────────────────────────────────
+function openCart() {
+  document.getElementById('cartMesaNum').textContent =
+    document.getElementById('mesaInput').value || '—';
+  renderCart();
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeCart() {
+  document.getElementById('overlay').classList.remove('open');
+  // Sync productos si estamos en vista producto
+  if (activeCat) showCat(MENU.indexOf(activeCat));
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeCart();
+}
+
+function renderCart() {
+  const items = Object.entries(cart).filter(([, q]) => q > 0);
+  const container = document.getElementById('cartItems');
+  const btn = document.getElementById('sendBtn');
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="empty-cart">El carrito está vacío.<br>Selecciona productos del menú.</div>';
+    btn.disabled = true;
+    return;
+  }
+
+  btn.disabled = false;
+
+  container.innerHTML = items.map(([nombre, qty]) => {
+    const item = getItem(nombre);
+    const precio = item ? item.p * qty : 0;
+    return `
+      <div class="cart-item">
+        <span class="cart-item-name">${nombre}</span>
+        <span class="cart-item-price">${fmt(precio)}</span>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${esc(nombre)}', -1)">−</button>
+          <span class="qty-num">${qty}</span>
+          <button class="qty-btn" onclick="changeQty('${esc(nombre)}', +1)">+</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function changeQty(nombre, delta) {
+  cart[nombre] = (cart[nombre] || 0) + delta;
+  if (cart[nombre] <= 0) delete cart[nombre];
+  updateBadge();
+  renderCart();
+}
+
+function clearCart() {
+  cart = {};
+  updateBadge();
+  closeCart();
+  renderCats();
+  toast('Carrito vaciado');
+}
+
+// ─── Enviar comanda ──────────────────────────────────────────────────────────
+async function enviar() {
+  const mesa = document.getElementById('mesaInput').value.trim();
+  if (!mesa) { toast('⚠️ Indica el número de mesa', true); return; }
+
+  const items = Object.entries(cart)
+    .filter(([, q]) => q > 0)
+    .map(([nombre, cantidad]) => ({ nombre, cantidad }));
+
+  if (items.length === 0) { toast('El carrito está vacío', true); return; }
+
+  const nota = document.getElementById('nota').value.trim();
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    const res = await fetch('/comanda', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mesa, items, nota })
+    });
+
+    if (res.ok) {
+      cart = {};
+      document.getElementById('nota').value = '';
+      updateBadge();
+      closeCart();
+      renderCats();
+      toast(`✅ Comanda enviada — Mesa ${mesa}`);
+    } else {
+      toast('Error al enviar', true);
+    }
+  } catch {
+    toast('Sin conexión con el servidor', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📤 ENVIAR COMANDA';
+  }
+}
+
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function toast(msg, err = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (err ? ' err' : '');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+renderCats();
+</script>
+</body>
+</html>
