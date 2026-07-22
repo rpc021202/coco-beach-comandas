@@ -6,399 +6,117 @@
   <title>Coco Beach - Barra</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #060d1a;
-      --surface: #0f1d33;
-      --surface2: #18294a;
-      --border: #243552;
-      --text: #e8f0ff;
-      --muted: #6b84aa;
-      --green: #22c55e;
-      --amber: #f59e0b;
-      --red: #ef4444;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      min-height: 100vh;
-    }
-
-    .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
+    :root { --bg: #060d1a; --surface: #0f1d33; --surface2: #18294a; --border: #243552; --text: #e8f0ff; --muted: #6b84aa; --green: #22c55e; --amber: #f59e0b; --red: #ef4444; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+    .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; }
     .header-logo { font-size: 20px; font-weight: 800; color: #f0a030; }
     .header-title { font-size: 18px; font-weight: 700; }
-
-    .pending-pill {
-      background: var(--red);
-      border-radius: 99px;
-      font-size: 13px;
-      font-weight: 800;
-      padding: 4px 12px;
-    }
-
-    .status {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 13px;
-      color: var(--muted);
-    }
+    .pending-pill { background: var(--red); border-radius: 99px; font-size: 13px; font-weight: 800; padding: 4px 12px; }
+    .status { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
     .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
     .dot.off { background: var(--red); }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-      gap: 16px;
-      padding: 18px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 2px solid var(--green);
-      border-radius: 14px;
-      overflow: hidden;
-      animation: pop 0.25s ease;
-    }
-    @keyframes pop {
-      from { transform: scale(0.93); opacity: 0; }
-      to   { transform: scale(1);    opacity: 1; }
-    }
-    .card.amber { border-color: var(--amber); }
-    .card.amber .card-head { background: var(--amber); }
-    .card.hot   { border-color: var(--red);   }
-    .card.hot   .card-head { background: var(--red);   }
-
-    .card-head {
-      background: var(--green);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-mesa { font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
-    .card-time { font-size: 13px; font-weight: 600; opacity: 0.9; }
-
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; padding: 18px; }
+    .card { background: var(--surface); border: 2px solid var(--green); border-radius: 14px; overflow: hidden; animation: pop 0.25s ease; }
+    @keyframes pop { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .card.amber { border-color: var(--amber); } .card.amber .card-head { background: var(--amber); }
+    .card.hot { border-color: var(--red); } .card.hot .card-head { background: var(--red); }
+    .card-head { background: var(--green); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+    .card-mesa { font-size: 22px; font-weight: 900; } .card-time { font-size: 13px; font-weight: 600; opacity: 0.9; }
     .card-body { padding: 12px 14px; }
-
-    .card-item {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      padding: 5px 0;
-      font-size: 16px;
-      font-weight: 600;
-      border-bottom: 1px solid var(--surface2);
-    }
+    .card-item { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; font-size: 16px; font-weight: 600; border-bottom: 1px solid var(--surface2); }
     .card-item:last-child { border-bottom: none; }
     .card-qty { color: var(--green); font-size: 18px; font-weight: 900; min-width: 28px; }
-    .card.amber .card-qty { color: var(--amber); }
-    .card.hot   .card-qty { color: var(--red); }
-
-    .card-nota {
-      background: var(--surface2);
-      border-left: 3px solid var(--amber);
-      border-radius: 6px;
-      color: #fde68a;
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 10px;
-      padding: 8px 10px;
-    }
-
-    .card-foot {
-      padding: 10px 14px;
-      border-top: 1px solid var(--surface2);
-      display: flex;
-      gap: 8px;
-    }
-
-    .done-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 700;
-      padding: 10px;
-      flex: 1;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-    .done-btn:hover, .done-btn:active {
-      background: var(--green);
-      border-color: var(--green);
-      color: #fff;
-    }
-
-    .print-btn {
-      background: #1e3a5f;
-      border: 1px solid #2d5280;
-      border-radius: 8px;
-      color: #93c5fd;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 700;
-      padding: 10px 14px;
-      transition: background 0.15s, color 0.15s;
-    }
-    .print-btn:hover, .print-btn:active {
-      background: #2563eb;
-      color: #fff;
-    }
-
-    .empty {
-      grid-column: 1/-1;
-      text-align: center;
-      color: var(--muted);
-      padding: 80px 20px;
-    }
+    .card.amber .card-qty { color: var(--amber); } .card.hot .card-qty { color: var(--red); }
+    .card-nota { background: var(--surface2); border-left: 3px solid var(--amber); border-radius: 6px; color: #fde68a; font-size: 13px; margin-top: 10px; padding: 8px 10px; }
+    .card-foot { padding: 10px 14px; border-top: 1px solid var(--surface2); display: flex; gap: 8px; }
+    .done-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-size: 15px; font-weight: 700; padding: 10px; flex: 1; transition: background 0.15s; }
+    .done-btn:hover { background: var(--green); border-color: var(--green); color: #fff; }
+    .print-btn { background: #1e3a5f; border: 1px solid #2d5280; border-radius: 8px; color: #93c5fd; cursor: pointer; font-size: 15px; font-weight: 700; padding: 10px 14px; transition: background 0.15s; }
+    .print-btn:hover { background: #2563eb; color: #fff; }
+    .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 80px 20px; }
     .empty-icon { font-size: 48px; font-weight: 900; color: #f0a030; margin-bottom: 16px; }
     .empty-text { font-size: 18px; font-weight: 600; }
-
-    /* ─── ZONA DE IMPRESION (solo visible al imprimir) ─── */
     #print-area { display: none; }
-
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area * { visibility: visible; }
-      #print-area {
-        display: block !important;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%;
-      }
-
-      @page {
-        size: 58mm auto;
-        margin: 3mm 2mm;
-      }
-
-      .receipt {
-        font-family: 'Courier New', monospace;
-        font-size: 11pt;
-        width: 100%;
-        color: #000;
-      }
-      .receipt-title {
-        text-align: center;
-        font-size: 14pt;
-        font-weight: bold;
-        margin-bottom: 4px;
-      }
-      .receipt-mesa {
-        text-align: center;
-        font-size: 16pt;
-        font-weight: bold;
-        margin-bottom: 2px;
-      }
-      .receipt-hora {
-        text-align: center;
-        font-size: 9pt;
-        margin-bottom: 6px;
-      }
-      .receipt-line {
-        border-top: 1px dashed #000;
-        margin: 4px 0;
-      }
-      .receipt-item {
-        display: flex;
-        gap: 6px;
-        font-size: 11pt;
-        padding: 2px 0;
-      }
-      .receipt-qty {
-        font-weight: bold;
-        min-width: 24px;
-      }
-      .receipt-nota {
-        font-size: 9pt;
-        margin-top: 4px;
-        padding: 3px;
-        border: 1px dashed #000;
-      }
+      #print-area { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
+      @page { size: 58mm auto; margin: 3mm 2mm; }
+      .receipt { font-family: 'Courier New', monospace; font-size: 11pt; width: 100%; color: #000; }
+      .receipt-title { text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 4px; }
+      .receipt-mesa { text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 2px; }
+      .receipt-hora { text-align: center; font-size: 9pt; margin-bottom: 6px; }
+      .receipt-line { border-top: 1px dashed #000; margin: 4px 0; }
+      .receipt-item { display: flex; gap: 6px; font-size: 11pt; padding: 2px 0; }
+      .receipt-qty { font-weight: bold; min-width: 24px; }
+      .receipt-nota { font-size: 9pt; margin-top: 4px; padding: 3px; border: 1px dashed #000; }
     }
   </style>
 </head>
 <body>
-
 <div class="header">
   <span class="header-logo">CB</span>
   <span class="header-title">COCO BEACH - BARRA</span>
   <span class="pending-pill" id="pill">0</span>
-  <div class="status">
-    <div class="dot" id="dot"></div>
-    <span id="statusTxt">Conectando...</span>
-  </div>
+  <div class="status"><div class="dot" id="dot"></div><span id="statusTxt">Conectando...</span></div>
 </div>
-
 <div class="grid" id="grid"></div>
-
-<!-- Zona oculta para impresion -->
 <div id="print-area"></div>
-
 <script>
-let orders = [];
-let ws;
-
-function connect() {
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  ws = new WebSocket(`${proto}//${location.host}`);
-
-  ws.onopen = () => {
-    setOnline(true);
-    loadOrders();
-  };
-
-  ws.onclose = () => {
-    setOnline(false);
-    setTimeout(connect, 3000);
-  };
-
-  ws.onmessage = ({ data }) => {
-    const msg = JSON.parse(data);
-    if (msg.type === 'nueva_comanda') {
-      orders.unshift(msg.comanda);
-      ding();
-      render();
-    } else if (msg.type === 'comanda_completada') {
-      orders = orders.filter(o => o.id !== msg.id);
-      render();
-    }
+let orders=[], ws;
+function connect(){
+  const proto=location.protocol==='https:'?'wss:':'ws:';
+  ws=new WebSocket(proto+'//'+location.host);
+  ws.onopen=()=>{setOnline(true);loadOrders();};
+  ws.onclose=()=>{setOnline(false);setTimeout(connect,3000);};
+  ws.onmessage=({data})=>{
+    const msg=JSON.parse(data);
+    if(msg.type==='nueva_comanda'){orders.unshift(msg.comanda);ding();render();autoPrint(msg.comanda);}
+    else if(msg.type==='comanda_completada'){orders=orders.filter(o=>o.id!==msg.id);render();}
   };
 }
-
-function setOnline(on) {
-  document.getElementById('dot').className = 'dot' + (on ? '' : ' off');
-  document.getElementById('statusTxt').textContent = on ? 'Conectado' : 'Sin conexion';
+function setOnline(on){
+  document.getElementById('dot').className='dot'+(on?'':' off');
+  document.getElementById('statusTxt').textContent=on?'Conectado':'Sin conexion';
 }
-
-async function loadOrders() {
-  try {
-    orders = await (await fetch('/api/orders')).json();
-    render();
-  } catch {}
-}
-
-function render() {
-  const pending = orders.filter(o => o.estado === 'pendiente');
-  document.getElementById('pill').textContent = pending.length;
-
-  const grid = document.getElementById('grid');
-
-  if (pending.length === 0) {
-    grid.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">CB</div>
-        <div class="empty-text">Esperando comandas...</div>
-      </div>`;
-    return;
-  }
-
-  grid.innerHTML = pending.map(order => {
-    const age = (Date.now() - new Date(order.timestamp)) / 60000;
-    const cls = age > 10 ? 'card hot' : age > 5 ? 'card amber' : 'card';
-    const hora = new Date(order.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-    return `
-      <div class="${cls}" id="c${order.id}">
-        <div class="card-head">
-          <span class="card-mesa">MESA ${order.mesa}</span>
-          <span class="card-time">${hora}</span>
-        </div>
-        <div class="card-body">
-          ${order.items.map(i => `
-            <div class="card-item">
-              <span class="card-qty">${i.cantidad}x</span>
-              <span>${i.nombre}</span>
-            </div>`).join('')}
-          ${order.nota ? `<div class="card-nota">Nota: ${order.nota}</div>` : ''}
-        </div>
-        <div class="card-foot">
-          <button class="print-btn" onclick="printOrder(${order.id})">Imprimir</button>
-          <button class="done-btn" onclick="complete(${order.id})">Completado</button>
-        </div>
-      </div>`;
+async function loadOrders(){try{orders=await(await fetch('/api/orders')).json();render();}catch{}}
+function render(){
+  const pending=orders.filter(o=>o.estado==='pendiente');
+  document.getElementById('pill').textContent=pending.length;
+  const grid=document.getElementById('grid');
+  if(pending.length===0){grid.innerHTML='<div class="empty"><div class="empty-icon">CB</div><div class="empty-text">Esperando comandas...</div></div>';return;}
+  grid.innerHTML=pending.map(order=>{
+    const age=(Date.now()-new Date(order.timestamp))/60000;
+    const cls=age>10?'card hot':age>5?'card amber':'card';
+    const hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="'+cls+'" id="c'+order.id+'"><div class="card-head"><span class="card-mesa">MESA '+order.mesa+'</span><span class="card-time">'+hora+'</span></div><div class="card-body">'+order.items.map(i=>'<div class="card-item"><span class="card-qty">'+i.cantidad+'x</span><span>'+i.nombre+'</span></div>').join('')+(order.nota?'<div class="card-nota">Nota: '+order.nota+'</div>':'')+'</div><div class="card-foot"><button class="print-btn" onclick="printOrder('+order.id+')">Imprimir</button><button class="done-btn" onclick="complete('+order.id+')">Completado</button></div></div>';
   }).join('');
 }
-
-function printOrder(id) {
-  const order = orders.find(o => o.id === id);
-  if (!order) return;
-
-  const hora = new Date(order.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  const fecha = new Date(order.timestamp).toLocaleDateString('es-ES');
-
-  const itemsHtml = order.items.map(i => `
-    <div class="receipt-item">
-      <span class="receipt-qty">${i.cantidad}x</span>
-      <span>${i.nombre}</span>
-    </div>`).join('');
-
-  const notaHtml = order.nota
-    ? `<div class="receipt-line"></div><div class="receipt-nota">Nota: ${order.nota}</div>`
-    : '';
-
-  document.getElementById('print-area').innerHTML = `
-    <div class="receipt">
-      <div class="receipt-title">COCO BEACH</div>
-      <div class="receipt-mesa">MESA ${order.mesa}</div>
-      <div class="receipt-hora">${fecha} - ${hora}</div>
-      <div class="receipt-line"></div>
-      ${itemsHtml}
-      ${notaHtml}
-      <div class="receipt-line"></div>
-    </div>`;
-
-  window.print();
+function buildReceipt(order){
+  const hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const fecha=new Date(order.timestamp).toLocaleDateString('es-ES');
+  return '<div class="receipt"><div class="receipt-title">COCO BEACH</div><div class="receipt-mesa">MESA '+order.mesa+'</div><div class="receipt-hora">'+fecha+' - '+hora+'</div><div class="receipt-line"></div>'+order.items.map(i=>'<div class="receipt-item"><span class="receipt-qty">'+i.cantidad+'x</span><span>'+i.nombre+'</span></div>').join('')+(order.nota?'<div class="receipt-line"></div><div class="receipt-nota">Nota: '+order.nota+'</div>':'')+'<div class="receipt-line"></div></div>';
 }
-
-async function complete(id) {
-  const card = document.getElementById('c' + id);
-  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
-  try {
-    await fetch(`/comanda/${id}/completar`, { method: 'POST' });
-    orders = orders.filter(o => o.id !== id);
-    render();
-  } catch {
-    if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
-  }
+function printOrder(id){const o=orders.find(o=>o.id===id);if(!o)return;document.getElementById('print-area').innerHTML=buildReceipt(o);window.print();}
+function autoPrint(order){document.getElementById('print-area').innerHTML=buildReceipt(order);window.print();}
+async function complete(id){
+  const card=document.getElementById('c'+id);
+  if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
+  try{await fetch('/comanda/'+id+'/completar',{method:'POST'});orders=orders.filter(o=>o.id!==id);render();}
+  catch{if(card){card.style.opacity='1';card.style.pointerEvents='';}}
 }
-
-function ding() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [[880, 0], [1100, 0.12], [880, 0.24]].forEach(([freq, t]) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq;
-      o.type = 'sine';
-      g.gain.setValueAtTime(0.25, ctx.currentTime + t);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.1);
-      o.start(ctx.currentTime + t);
-      o.stop(ctx.currentTime + t + 0.12);
+function ding(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[880,0],[1100,0.12],[880,0.24]].forEach(([freq,t])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.frequency.value=freq;o.type='sine';
+      g.gain.setValueAtTime(0.25,ctx.currentTime+t);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.1);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.12);
     });
-  } catch {}
+  }catch{}
 }
-
-setInterval(render, 60000);
-connect();
+setInterval(render,60000);connect();
 </script>
 </body>
 </html>
