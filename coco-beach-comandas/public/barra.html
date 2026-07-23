@@ -27,6 +27,7 @@
     .cm{font-size:22px;font-weight:900;}
     .ct{font-size:13px;font-weight:600;opacity:.9;}
     .cb{padding:12px 14px;}
+    .ccam{font-size:12px;color:var(--mu);margin-bottom:8px;}
     .ci{display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:16px;font-weight:600;border-bottom:1px solid var(--sf2);}
     .ci:last-child{border-bottom:none;}
     .cq{color:var(--gr);font-size:18px;font-weight:900;min-width:28px;}
@@ -49,26 +50,26 @@
       #pra { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
       @page { size: 58mm auto; margin: 2mm 1mm; }
 
-      .tkt { font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold; color: #000; width: 100%; line-height: 1.45; }
-      .tkt-titulo { text-align: center; font-size: 16pt; font-weight: 900; letter-spacing: 1px; margin-bottom: 2px; }
-      .tkt-mesa  { text-align: center; font-size: 24pt; font-weight: 900; margin-bottom: 1px; }
+      .tkt { font-family: Arial, Helvetica, sans-serif; font-size: 13pt; font-weight: normal; color: #000; width: 100%; line-height: 1.45; }
+      .tkt-titulo { text-align: center; font-size: 15pt; font-weight: 900; letter-spacing: 1px; margin-bottom: 2px; }
+      .tkt-mesa  { text-align: center; font-size: 22pt; font-weight: 900; margin-bottom: 1px; }
       .tkt-hora  { text-align: center; font-size: 10pt; font-weight: normal; margin-bottom: 5px; }
+      .tkt-num   { text-align: center; font-size: 10pt; font-weight: normal; color: #555; margin-bottom: 3px; }
       .tkt-sep   { border-top: 1px dashed #000; margin: 4px 0; }
 
-      .tkt-fila  { display: flex; align-items: baseline; padding: 3px 0; font-size: 14pt; font-weight: bold; }
+      .tkt-fila  { display: flex; align-items: baseline; padding: 3px 0; font-size: 13pt; font-weight: normal; }
       .tkt-qty   { min-width: 20px; margin-right: 5px; flex-shrink: 0; }
       .tkt-nom   { flex: 1; word-break: break-word; }
       .tkt-prec  { white-space: nowrap; margin-left: 4px; flex-shrink: 0; }
 
-      .tkt-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 17pt; font-weight: 900; padding: 5px 0; border-top: 2px solid #000; margin-top: 4px; }
-      .tkt-nota  { font-size: 10pt; font-weight: normal; margin-top: 5px; padding: 4px; border: 1px dashed #000; }
+      .tkt-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 16pt; font-weight: 900; padding: 5px 0; border-top: 2px solid #000; margin-top: 4px; }
     }
   </style>
 </head>
 <body>
 <div class="hdr">
   <span class="hlogo">CB</span>
-  <span class="htitle">COCO BEACH - BARRA</span>
+  <span class="htitle">COCO BEACH — BARRA</span>
   <span class="pill" id="pill">0</span>
   <div class="status">
     <div class="dot off" id="dot"></div>
@@ -150,17 +151,19 @@ function render(){
     var age=(Date.now()-new Date(order.timestamp))/60000;
     var cls=age>10?'card hot':age>5?'card amber':'card';
     var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    var mesaTxt=order.mesa?'MESA '+order.mesa:'SIN MESA';
     return '<div class="'+cls+'" id="c'+order.id+'">'
-      +'<div class="ch"><span class="cm">MESA '+order.mesa+'</span><span class="ct">'+hora+'</span></div>'
+      +'<div class="ch"><span class="cm">'+mesaTxt+'</span><span class="ct">'+hora+'</span></div>'
       +'<div class="cb">'
+      +(order.camarero?'<div class="ccam">&#128100; '+order.camarero+'</div>':'')
       +order.items.map(function(i){
         return '<div class="ci"><span class="cq">'+i.cantidad+'</span><span>'+i.nombre+'</span></div>';
       }).join('')
-      +(order.nota?'<div class="cnota">Nota: '+order.nota+'</div>':'')
+      +(order.nota?'<div class="cnota">&#128274; '+order.nota+'</div>':'')
       +'</div>'
       +'<div class="cf">'
       +'<button class="pbtn" onclick="printOrder('+order.id+')">Imprimir</button>'
-      +'<button class="dbtn" onclick="complete('+order.id+')">Completado</button>'
+      +'<button class="dbtn" onclick="complete('+order.id+')">Completado &#10003;</button>'
       +'</div></div>';
   }).join('');
 }
@@ -171,6 +174,7 @@ function buildTicket(order){
   var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   var fecha=new Date(order.timestamp).toLocaleDateString('es-ES');
   var total=0;
+  var mesaTxt=order.mesa?'MESA '+order.mesa:'SIN MESA';
   var filas=order.items.map(function(i){
     var linea=(i.precio||0)*i.cantidad;
     total+=linea;
@@ -183,17 +187,14 @@ function buildTicket(order){
   var totHtml=total>0
     ?'<div class="tkt-total"><span>TOTAL</span><span>'+numFmt(total)+' €</span></div>'
     :'';
-  var notaHtml=order.nota
-    ?'<div class="tkt-nota">Nota: '+order.nota+'</div>'
-    :'';
   return '<div class="tkt">'
     +'<div class="tkt-titulo">COCO BEACH</div>'
-    +'<div class="tkt-mesa">MESA '+order.mesa+'</div>'
-    +'<div class="tkt-hora">'+fecha+' - '+hora+'</div>'
+    +'<div class="tkt-mesa">'+mesaTxt+'</div>'
+    +'<div class="tkt-hora">'+fecha+' '+hora+'</div>'
+    +'<div class="tkt-num">#'+order.id+'</div>'
     +'<div class="tkt-sep"></div>'
     +filas
     +totHtml
-    +notaHtml
     +'<div class="tkt-sep"></div>'
     +'</div>';
 }
