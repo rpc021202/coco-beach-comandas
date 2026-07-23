@@ -43,31 +43,25 @@
     .empty-text{font-size:18px;font-weight:600;}
     #pra{display:none;}
 
-    /* ── TICKET DE IMPRESION ─────────────────────────────────── */
-    @media print{
-      body *{visibility:hidden;}
-      #pra,#pra *{visibility:visible;}
-      #pra{display:block!important;position:fixed;top:0;left:0;width:100%;}
-      @page{size:58mm auto;margin:2mm 1mm;}
+    @media print {
+      body * { visibility: hidden; }
+      #pra, #pra * { visibility: visible; }
+      #pra { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
+      @page { size: 58mm auto; margin: 2mm 1mm; }
 
-      /* Fuente: Arial bold, compacta y legible en termica */
-      .r{font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:13pt;width:100%;color:#000;line-height:1.4;}
+      .tkt { font-family: Arial, Helvetica, sans-serif; font-size: 14pt; font-weight: bold; color: #000; width: 100%; line-height: 1.45; }
+      .tkt-titulo { text-align: center; font-size: 16pt; font-weight: 900; letter-spacing: 1px; margin-bottom: 2px; }
+      .tkt-mesa  { text-align: center; font-size: 24pt; font-weight: 900; margin-bottom: 1px; }
+      .tkt-hora  { text-align: center; font-size: 10pt; font-weight: normal; margin-bottom: 5px; }
+      .tkt-sep   { border-top: 1px dashed #000; margin: 4px 0; }
 
-      .r-title{text-align:center;font-size:16pt;font-weight:900;letter-spacing:1px;margin-bottom:2px;}
-      .r-mesa {text-align:center;font-size:22pt;font-weight:900;margin-bottom:1px;}
-      .r-hora {text-align:center;font-size:10pt;font-weight:normal;margin-bottom:4px;}
-      .r-line {border-top:1px dashed #000;margin:4px 0;}
+      .tkt-fila  { display: flex; align-items: baseline; padding: 3px 0; font-size: 14pt; font-weight: bold; }
+      .tkt-qty   { min-width: 20px; margin-right: 5px; flex-shrink: 0; }
+      .tkt-nom   { flex: 1; word-break: break-word; }
+      .tkt-prec  { white-space: nowrap; margin-left: 4px; flex-shrink: 0; }
 
-      /* Fila de item: cantidad - nombre - precio */
-      .r-row{display:flex;align-items:baseline;font-size:13pt;font-weight:bold;padding:3px 0;gap:4px;}
-      .r-qty{min-width:18px;flex-shrink:0;}
-      .r-name{flex:1;word-break:break-word;}
-      .r-price{white-space:nowrap;flex-shrink:0;margin-left:2px;}
-
-      /* TOTAL */
-      .r-total{display:flex;justify-content:space-between;align-items:baseline;font-size:16pt;font-weight:900;padding:4px 0;border-top:2px solid #000;margin-top:3px;}
-
-      .r-nota{font-size:10pt;font-weight:normal;margin-top:5px;padding:3px;border:1px dashed #000;}
+      .tkt-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 17pt; font-weight: 900; padding: 5px 0; border-top: 2px solid #000; margin-top: 4px; }
+      .tkt-nota  { font-size: 10pt; font-weight: normal; margin-top: 5px; padding: 4px; border: 1px dashed #000; }
     }
   </style>
 </head>
@@ -94,13 +88,18 @@ function connect(){
     ws.onopen=function(){wsOk=true;setStatus('ws');loadOrders();};
     ws.onclose=function(){wsOk=false;setStatus('poll');setTimeout(connect,5000);};
     ws.onerror=function(){wsOk=false;setStatus('poll');};
-    ws.onmessage=function(e){
+    ws.onmessage=function(ev){
       try{
-        var msg=JSON.parse(e.data);
+        var msg=JSON.parse(ev.data);
         if(msg.type==='nueva_comanda'){
-          if(!knownIds.has(msg.comanda.id)){knownIds.add(msg.comanda.id);orders.unshift(msg.comanda);ding();render();autoPrint(msg.comanda);}
+          if(!knownIds.has(msg.comanda.id)){
+            knownIds.add(msg.comanda.id);
+            orders.unshift(msg.comanda);
+            ding(); render(); autoPrint(msg.comanda);
+          }
         } else if(msg.type==='comanda_completada'){
-          orders=orders.filter(function(o){return o.id!==msg.id;});knownIds.delete(msg.id);render();
+          orders=orders.filter(function(o){return o.id!==msg.id;});
+          knownIds.delete(msg.id); render();
         }
       }catch(e){}
     };
@@ -112,13 +111,16 @@ async function poll(){
     var data=await (await fetch('/api/orders')).json();
     var hasNew=false;
     data.forEach(function(order){
-      if(!knownIds.has(order.id)){knownIds.add(order.id);orders.unshift(order);hasNew=true;ding();autoPrint(order);}
+      if(!knownIds.has(order.id)){
+        knownIds.add(order.id); orders.unshift(order);
+        hasNew=true; ding(); autoPrint(order);
+      }
     });
     var sIds=new Set(data.map(function(o){return o.id;}));
     var before=orders.length;
     orders=orders.filter(function(o){return sIds.has(o.id);});
-    if(hasNew||orders.length!==before)render();
-    if(!wsOk)setStatus('poll');
+    if(hasNew||orders.length!==before) render();
+    if(!wsOk) setStatus('poll');
   }catch(e){if(!wsOk)setStatus('off');}
 }
 
@@ -130,21 +132,30 @@ function setStatus(s){
 }
 
 async function loadOrders(){
-  try{var data=await (await fetch('/api/orders')).json();orders=data;data.forEach(function(o){knownIds.add(o.id);});render();}catch(e){}
+  try{
+    var data=await (await fetch('/api/orders')).json();
+    orders=data; data.forEach(function(o){knownIds.add(o.id);}); render();
+  }catch(e){}
 }
 
 function render(){
   var pending=orders.filter(function(o){return o.estado==='pendiente';});
   document.getElementById('pill').textContent=pending.length;
   var g=document.getElementById('grid');
-  if(!pending.length){g.innerHTML='<div class="empty"><div class="empty-icon">CB</div><div class="empty-text">Esperando comandas...</div></div>';return;}
+  if(!pending.length){
+    g.innerHTML='<div class="empty"><div class="empty-icon">CB</div><div class="empty-text">Esperando comandas...</div></div>';
+    return;
+  }
   g.innerHTML=pending.map(function(order){
     var age=(Date.now()-new Date(order.timestamp))/60000;
     var cls=age>10?'card hot':age>5?'card amber':'card';
     var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
     return '<div class="'+cls+'" id="c'+order.id+'">'
       +'<div class="ch"><span class="cm">MESA '+order.mesa+'</span><span class="ct">'+hora+'</span></div>'
-      +'<div class="cb">'+order.items.map(function(i){return '<div class="ci"><span class="cq">'+i.cantidad+'</span><span>'+i.nombre+'</span></div>';}).join('')
+      +'<div class="cb">'
+      +order.items.map(function(i){
+        return '<div class="ci"><span class="cq">'+i.cantidad+'</span><span>'+i.nombre+'</span></div>';
+      }).join('')
       +(order.nota?'<div class="cnota">Nota: '+order.nota+'</div>':'')
       +'</div>'
       +'<div class="cf">'
@@ -154,48 +165,48 @@ function render(){
   }).join('');
 }
 
-// Precio sin EUR para items, con euro solo en total
-function fmtItem(p){return p.toFixed(2).replace('.',',');}
-function fmtTotal(p){return p.toFixed(2).replace('.',',')+' €';}
+function numFmt(p){ return p.toFixed(2).replace('.',','); }
 
-function buildReceipt(order){
+function buildTicket(order){
   var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   var fecha=new Date(order.timestamp).toLocaleDateString('es-ES');
   var total=0;
-  var rows=order.items.map(function(i){
+  var filas=order.items.map(function(i){
     var linea=(i.precio||0)*i.cantidad;
     total+=linea;
-    return '<div class="r-row">'
-      +'<span class="r-qty">'+i.cantidad+'</span>'
-      +'<span class="r-name">'+i.nombre+'</span>'
-      +(linea>0?'<span class="r-price">'+fmtItem(linea)+'</span>':'')
+    return '<div class="tkt-fila">'
+      +'<span class="tkt-qty">'+i.cantidad+'</span>'
+      +'<span class="tkt-nom">'+i.nombre+'</span>'
+      +(linea>0?'<span class="tkt-prec">'+numFmt(linea)+'</span>':'')
       +'</div>';
   }).join('');
-  var totalHtml=total>0
-    ?'<div class="r-total"><span>TOTAL</span><span>'+fmtTotal(total)+'</span></div>'
+  var totHtml=total>0
+    ?'<div class="tkt-total"><span>TOTAL</span><span>'+numFmt(total)+' €</span></div>'
     :'';
-  var notaHtml=order.nota?'<div class="r-nota">Nota: '+order.nota+'</div>':'';
-  return '<div class="r">'
-    +'<div class="r-title">COCO BEACH</div>'
-    +'<div class="r-mesa">MESA '+order.mesa+'</div>'
-    +'<div class="r-hora">'+fecha+' - '+hora+'</div>'
-    +'<div class="r-line"></div>'
-    +rows
-    +totalHtml
+  var notaHtml=order.nota
+    ?'<div class="tkt-nota">Nota: '+order.nota+'</div>'
+    :'';
+  return '<div class="tkt">'
+    +'<div class="tkt-titulo">COCO BEACH</div>'
+    +'<div class="tkt-mesa">MESA '+order.mesa+'</div>'
+    +'<div class="tkt-hora">'+fecha+' - '+hora+'</div>'
+    +'<div class="tkt-sep"></div>'
+    +filas
+    +totHtml
     +notaHtml
-    +'<div class="r-line"></div>'
+    +'<div class="tkt-sep"></div>'
     +'</div>';
 }
 
 function printOrder(id){
-  var order=orders.find(function(o){return o.id===id;});
-  if(!order)return;
-  document.getElementById('pra').innerHTML=buildReceipt(order);
+  var o=orders.find(function(x){return x.id===id;});
+  if(!o) return;
+  document.getElementById('pra').innerHTML=buildTicket(o);
   window.print();
 }
 
 function autoPrint(order){
-  document.getElementById('pra').innerHTML=buildReceipt(order);
+  document.getElementById('pra').innerHTML=buildTicket(order);
   window.print();
 }
 
@@ -204,8 +215,11 @@ async function complete(id){
   if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
   try{
     await fetch('/comanda/'+id+'/completar',{method:'POST'});
-    orders=orders.filter(function(o){return o.id!==id;});knownIds.delete(id);render();
-  }catch(e){if(card){card.style.opacity='1';card.style.pointerEvents='';}}
+    orders=orders.filter(function(o){return o.id!==id;});
+    knownIds.delete(id); render();
+  }catch(e){
+    if(card){card.style.opacity='1';card.style.pointerEvents='';}
+  }
 }
 
 function ding(){
@@ -213,11 +227,11 @@ function ding(){
     var ctx=new(window.AudioContext||window.webkitAudioContext)();
     [[880,0],[1100,0.12],[880,0.24]].forEach(function(x){
       var o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.frequency.value=x[0];o.type='sine';
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=x[0]; o.type='sine';
       g.gain.setValueAtTime(0.25,ctx.currentTime+x[1]);
       g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+x[1]+0.1);
-      o.start(ctx.currentTime+x[1]);o.stop(ctx.currentTime+x[1]+0.12);
+      o.start(ctx.currentTime+x[1]); o.stop(ctx.currentTime+x[1]+0.12);
     });
   }catch(e){}
 }
