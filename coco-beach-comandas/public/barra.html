@@ -64,6 +64,20 @@
 
       .tkt-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 16pt; font-weight: 900; padding: 5px 0; border-top: 2px solid #000; margin-top: 4px; }
     }
+
+    .nop{display:none;position:fixed;inset:0;background:#000;z-index:50;flex-direction:column;}
+    .nop.open{display:flex;}
+    .nop-hdr{background:var(--sf);border-bottom:1px solid var(--br);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .nop-title{font-size:16px;font-weight:800;flex:1;}
+    .nop-close{background:var(--sf2);border:1px solid var(--br);border-radius:8px;color:var(--mu);cursor:pointer;font-size:14px;font-weight:700;padding:8px 14px;}
+    .nop-frame{flex:1;border:none;width:100%;background:#fff;}
+    .hbtn{border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:800;padding:9px 14px;white-space:nowrap;}
+    .hbtn-gr{background:#22c55e;color:#000;}
+    .hbtn-am{background:#f59e0b;color:#000;}
+    .hbtn-am:disabled{background:#7a5e0b;color:#aaa;cursor:default;}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid #22c55e;border-radius:10px;color:#22c55e;font-size:14px;font-weight:700;padding:10px 22px;z-index:200;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast.err{background:#2a1a1a;border-color:#ef4444;color:#ef4444;}
   </style>
 </head>
 <body>
@@ -71,6 +85,8 @@
   <span class="hlogo">CB</span>
   <span class="htitle">COCO BEACH — BARRA</span>
   <span class="pill" id="pill">0</span>
+  <button class="hbtn hbtn-gr" onclick="openNewOrder()">+ Pedido</button>
+  <button class="hbtn hbtn-am" id="cajaBtn" onclick="abrirCaja()">&#128181; Abrir Caja</button>
   <div class="status">
     <div class="dot off" id="dot"></div>
     <span id="stxt">Conectando...</span>
@@ -78,6 +94,14 @@
 </div>
 <div class="grid" id="grid"></div>
 <div id="pra"></div>
+<div class="nop" id="nopOvl">
+  <div class="nop-hdr">
+    <span class="nop-title">&#128722; Nuevo Pedido — Barra</span>
+    <button class="nop-close" onclick="closeNewOrder()">&#10005; Cerrar</button>
+  </div>
+  <iframe class="nop-frame" id="nopFrame" src="about:blank"></iframe>
+</div>
+<div class="toast" id="toast"></div>
 
 <script>
 var orders=[],ws,wsOk=false,knownIds=new Set();
@@ -237,6 +261,43 @@ function ding(){
   }catch(e){}
 }
 
+
+function openNewOrder(){
+  var f=document.getElementById('nopFrame');
+  if(!f.src||f.src==='about:blank') f.src='/';
+  document.getElementById('nopOvl').classList.add('open');
+}
+function closeNewOrder(){
+  document.getElementById('nopOvl').classList.remove('open');
+}
+function _toast(msg,err){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(err?' err':'')+' show';
+  clearTimeout(t._tid); t._tid=setTimeout(function(){t.className='toast';},2800);
+}
+var _drawerPort=null;
+async function abrirCaja(){
+  var btn=document.getElementById('cajaBtn');
+  if(!navigator.serial){_toast('Web Serial no disponible',true);return;}
+  btn.innerHTML='Abriendo...'; btn.disabled=true;
+  try{
+    if(!_drawerPort){
+      var ports=await navigator.serial.getPorts();
+      _drawerPort=ports.length?ports[0]:await navigator.serial.requestPort();
+    }
+    await _drawerPort.open({baudRate:9600});
+    var w=_drawerPort.writable.getWriter();
+    await w.write(new Uint8Array([0x1B,0x70,0x00,0x32,0xFF]));
+    w.releaseLock();
+    await _drawerPort.close();
+    _toast('Caja abierta ✓');
+  }catch(e){
+    _drawerPort=null;
+    if(e.name!=='NotFoundError') _toast('Caja: '+e.message,true);
+  }finally{
+    btn.innerHTML='&#128181; Abrir Caja'; btn.disabled=false;
+  }
+}
 setInterval(poll,4000);
 setInterval(render,60000);
 connect();
