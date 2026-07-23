@@ -42,21 +42,32 @@
     .empty-icon{font-size:48px;font-weight:900;color:#f0a030;margin-bottom:16px;}
     .empty-text{font-size:18px;font-weight:600;}
     #pra{display:none;}
+
+    /* ── TICKET DE IMPRESION ─────────────────────────────────── */
     @media print{
       body *{visibility:hidden;}
       #pra,#pra *{visibility:visible;}
       #pra{display:block!important;position:fixed;top:0;left:0;width:100%;}
-      @page{size:58mm auto;margin:3mm 2mm;}
-      .r{font-family:'Courier New',Courier,monospace;font-size:12pt;width:100%;color:#000;line-height:1.5;}
-      .r-title{text-align:center;font-size:15pt;font-weight:bold;letter-spacing:1px;margin-bottom:3px;}
-      .r-mesa{text-align:center;font-size:20pt;font-weight:bold;margin-bottom:2px;}
-      .r-hora{text-align:center;font-size:10pt;margin-bottom:5px;}
-      .r-line{border-top:1px dashed #000;margin:5px 0;}
-      .r-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12pt;font-weight:bold;padding:3px 0;}
-      .r-row-n{flex:1;padding-right:6px;}
-      .r-row-p{white-space:nowrap;font-size:12pt;font-weight:bold;}
-      .r-total{display:flex;justify-content:space-between;align-items:baseline;font-size:14pt;font-weight:bold;padding:4px 0;border-top:2px solid #000;margin-top:3px;}
-      .r-nota{font-size:10pt;margin-top:5px;padding:4px;border:1px dashed #000;}
+      @page{size:58mm auto;margin:2mm 1mm;}
+
+      /* Fuente: Arial bold, compacta y legible en termica */
+      .r{font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:13pt;width:100%;color:#000;line-height:1.4;}
+
+      .r-title{text-align:center;font-size:16pt;font-weight:900;letter-spacing:1px;margin-bottom:2px;}
+      .r-mesa {text-align:center;font-size:22pt;font-weight:900;margin-bottom:1px;}
+      .r-hora {text-align:center;font-size:10pt;font-weight:normal;margin-bottom:4px;}
+      .r-line {border-top:1px dashed #000;margin:4px 0;}
+
+      /* Fila de item: cantidad - nombre - precio */
+      .r-row{display:flex;align-items:baseline;font-size:13pt;font-weight:bold;padding:3px 0;gap:4px;}
+      .r-qty{min-width:18px;flex-shrink:0;}
+      .r-name{flex:1;word-break:break-word;}
+      .r-price{white-space:nowrap;flex-shrink:0;margin-left:2px;}
+
+      /* TOTAL */
+      .r-total{display:flex;justify-content:space-between;align-items:baseline;font-size:16pt;font-weight:900;padding:4px 0;border-top:2px solid #000;margin-top:3px;}
+
+      .r-nota{font-size:10pt;font-weight:normal;margin-top:5px;padding:3px;border:1px dashed #000;}
     }
   </style>
 </head>
@@ -133,7 +144,7 @@ function render(){
     var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
     return '<div class="'+cls+'" id="c'+order.id+'">'
       +'<div class="ch"><span class="cm">MESA '+order.mesa+'</span><span class="ct">'+hora+'</span></div>'
-      +'<div class="cb">'+order.items.map(function(i){return '<div class="ci"><span class="cq">'+i.cantidad+'x</span><span>'+i.nombre+'</span></div>';}).join('')
+      +'<div class="cb">'+order.items.map(function(i){return '<div class="ci"><span class="cq">'+i.cantidad+'</span><span>'+i.nombre+'</span></div>';}).join('')
       +(order.nota?'<div class="cnota">Nota: '+order.nota+'</div>':'')
       +'</div>'
       +'<div class="cf">'
@@ -143,7 +154,9 @@ function render(){
   }).join('');
 }
 
-function fmtP(p){return p.toFixed(2).replace('.',',')+' EUR';}
+// Precio sin EUR para items, con euro solo en total
+function fmtItem(p){return p.toFixed(2).replace('.',',');}
+function fmtTotal(p){return p.toFixed(2).replace('.',',')+' €';}
 
 function buildReceipt(order){
   var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
@@ -153,11 +166,14 @@ function buildReceipt(order){
     var linea=(i.precio||0)*i.cantidad;
     total+=linea;
     return '<div class="r-row">'
-      +'<span class="r-row-n">'+i.cantidad+'x '+i.nombre+'</span>'
-      +(linea>0?'<span class="r-row-p">'+fmtP(linea)+'</span>':'')
+      +'<span class="r-qty">'+i.cantidad+'</span>'
+      +'<span class="r-name">'+i.nombre+'</span>'
+      +(linea>0?'<span class="r-price">'+fmtItem(linea)+'</span>':'')
       +'</div>';
   }).join('');
-  var totalHtml=total>0?'<div class="r-total"><span>TOTAL</span><span>'+fmtP(total)+'</span></div>':'';
+  var totalHtml=total>0
+    ?'<div class="r-total"><span>TOTAL</span><span>'+fmtTotal(total)+'</span></div>'
+    :'';
   var notaHtml=order.nota?'<div class="r-nota">Nota: '+order.nota+'</div>':'';
   return '<div class="r">'
     +'<div class="r-title">COCO BEACH</div>'
