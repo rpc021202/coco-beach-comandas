@@ -50,14 +50,17 @@
       #print-area, #print-area * { visibility: visible; }
       #print-area { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
       @page { size: 58mm auto; margin: 3mm 2mm; }
-      .receipt { font-family: 'Courier New', monospace; font-size: 11pt; width: 100%; color: #000; }
-      .receipt-title { text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 4px; }
-      .receipt-mesa { text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 2px; }
-      .receipt-hora { text-align: center; font-size: 9pt; margin-bottom: 6px; }
-      .receipt-line { border-top: 1px dashed #000; margin: 4px 0; }
-      .receipt-item { display: flex; gap: 6px; font-size: 11pt; padding: 2px 0; }
-      .receipt-qty { font-weight: bold; min-width: 24px; }
-      .receipt-nota { font-size: 9pt; margin-top: 4px; padding: 3px; border: 1px dashed #000; }
+      .receipt { font-family: 'Courier New', monospace; font-size: 10pt; width: 100%; color: #000; }
+      .receipt-center { text-align: center; }
+      .receipt-title { text-align: center; font-size: 13pt; font-weight: bold; margin-bottom: 2px; }
+      .receipt-mesa { text-align: center; font-size: 15pt; font-weight: bold; margin-bottom: 2px; }
+      .receipt-hora { text-align: center; font-size: 8pt; margin-bottom: 4px; }
+      .receipt-line { border-top: 1px dashed #000; margin: 3px 0; }
+      .receipt-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 1px 0; }
+      .receipt-row-name { flex: 1; }
+      .receipt-row-price { white-space: nowrap; margin-left: 4px; }
+      .receipt-total { display: flex; justify-content: space-between; font-size: 11pt; font-weight: bold; padding: 2px 0; }
+      .receipt-nota { font-size: 8pt; margin-top: 3px; padding: 2px; border: 1px dashed #000; }
     }
   </style>
 </head>
@@ -153,14 +156,41 @@ function render() {
     const age = (Date.now() - new Date(order.timestamp)) / 60000;
     const cls = age > 10 ? 'card hot' : age > 5 ? 'card amber' : 'card';
     const hora = new Date(order.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    return '<div class="' + cls + '" id="c' + order.id + '"><div class="card-head"><span class="card-mesa">MESA ' + order.mesa + '</span><span class="card-time">' + hora + '</span></div><div class="card-body">' + order.items.map(i => '<div class="card-item"><span class="card-qty">' + i.cantidad + 'x</span><span>' + i.nombre + '</span></div>').join('') + (order.nota ? '<div class="card-nota">Nota: ' + order.nota + '</div>' : '') + '</div><div class="card-foot"><button class="print-btn" onclick="printOrder(' + order.id + ')">Imprimir</button><button class="done-btn" onclick="complete(' + order.id + ')">Completado</button></div></div>';
+    return '<div class="' + cls + '" id="c' + order.id + '"><div class="card-head"><span class="card-mesa">MESA ' + order.mesa + '</span><span class="card-time">' + hora + '</span></div><div class="card-body">' +
+      order.items.map(i => '<div class="card-item"><span class="card-qty">' + i.cantidad + 'x</span><span>' + i.nombre + '</span></div>').join('') +
+      (order.nota ? '<div class="card-nota">Nota: ' + order.nota + '</div>' : '') +
+      '</div><div class="card-foot"><button class="print-btn" onclick="printOrder(' + order.id + ')">Imprimir</button><button class="done-btn" onclick="complete(' + order.id + ')">Completado</button></div></div>';
   }).join('');
+}
+
+function fmtP(p) {
+  if (!p && p !== 0) return '';
+  return p.toFixed(2).replace('.', ',') + 'EUR';
 }
 
 function buildReceiptHtml(order) {
   const hora = new Date(order.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   const fecha = new Date(order.timestamp).toLocaleDateString('es-ES');
-  return '<div class="receipt"><div class="receipt-title">COCO BEACH</div><div class="receipt-mesa">MESA ' + order.mesa + '</div><div class="receipt-hora">' + fecha + ' - ' + hora + '</div><div class="receipt-line"></div>' + order.items.map(i => '<div class="receipt-item"><span class="receipt-qty">' + i.cantidad + 'x</span><span>' + i.nombre + '</span></div>').join('') + (order.nota ? '<div class="receipt-line"></div><div class="receipt-nota">Nota: ' + order.nota + '</div>' : '') + '<div class="receipt-line"></div></div>';
+  let total = 0;
+  const itemsHtml = order.items.map(i => {
+    const linea = (i.precio || 0) * i.cantidad;
+    total += linea;
+    const lineaStr = linea > 0 ? fmtP(linea) : '';
+    return '<div class="receipt-row"><span class="receipt-row-name">' + i.cantidad + 'x ' + i.nombre + '</span>' +
+      (lineaStr ? '<span class="receipt-row-price">' + lineaStr + '</span>' : '') + '</div>';
+  }).join('');
+  const notaHtml = order.nota ? '<div class="receipt-nota">Nota: ' + order.nota + '</div>' : '';
+  const totalHtml = total > 0 ? '<div class="receipt-line"></div><div class="receipt-total"><span>TOTAL</span><span>' + fmtP(total) + '</span></div>' : '';
+  return '<div class="receipt">' +
+    '<div class="receipt-title">COCO BEACH</div>' +
+    '<div class="receipt-mesa">MESA ' + order.mesa + '</div>' +
+    '<div class="receipt-hora">' + fecha + ' - ' + hora + '</div>' +
+    '<div class="receipt-line"></div>' +
+    itemsHtml +
+    totalHtml +
+    notaHtml +
+    '<div class="receipt-line"></div>' +
+    '</div>';
 }
 
 function printOrder(id) {
