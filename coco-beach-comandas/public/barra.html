@@ -5,233 +5,209 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coco Beach - Barra</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #060d1a; --surface: #0f1d33; --surface2: #18294a; --border: #243552;
-      --text: #e8f0ff; --muted: #6b84aa; --green: #22c55e; --amber: #f59e0b; --red: #ef4444;
-    }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
-    .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; }
-    .header-logo { font-size: 20px; font-weight: 800; color: #f0a030; }
-    .header-title { font-size: 18px; font-weight: 700; }
-    .pending-pill { background: var(--red); border-radius: 99px; font-size: 13px; font-weight: 800; padding: 4px 12px; }
-    .status { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .dot.off { background: var(--red); }
-    .dot.warn { background: var(--amber); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; padding: 18px; }
-    .card { background: var(--surface); border: 2px solid var(--green); border-radius: 14px; overflow: hidden; animation: pop 0.25s ease; }
-    @keyframes pop { from { transform: scale(0.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .card.amber { border-color: var(--amber); }
-    .card.amber .card-head { background: var(--amber); }
-    .card.hot { border-color: var(--red); }
-    .card.hot .card-head { background: var(--red); }
-    .card-head { background: var(--green); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
-    .card-mesa { font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
-    .card-time { font-size: 13px; font-weight: 600; opacity: 0.9; }
-    .card-body { padding: 12px 14px; }
-    .card-item { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; font-size: 16px; font-weight: 600; border-bottom: 1px solid var(--surface2); }
-    .card-item:last-child { border-bottom: none; }
-    .card-qty { color: var(--green); font-size: 18px; font-weight: 900; min-width: 28px; }
-    .card.amber .card-qty { color: var(--amber); }
-    .card.hot .card-qty { color: var(--red); }
-    .card-nota { background: var(--surface2); border-left: 3px solid var(--amber); border-radius: 6px; color: #fde68a; font-size: 13px; font-weight: 500; margin-top: 10px; padding: 8px 10px; }
-    .card-foot { padding: 10px 14px; border-top: 1px solid var(--surface2); display: flex; gap: 8px; }
-    .done-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-size: 15px; font-weight: 700; padding: 10px; flex: 1; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-    .done-btn:hover, .done-btn:active { background: var(--green); border-color: var(--green); color: #fff; }
-    .print-btn { background: #1e3a5f; border: 1px solid #2d5280; border-radius: 8px; color: #93c5fd; cursor: pointer; font-size: 15px; font-weight: 700; padding: 10px 14px; transition: background 0.15s, color 0.15s; }
-    .print-btn:hover, .print-btn:active { background: #2563eb; color: #fff; }
-    .empty { grid-column: 1/-1; text-align: center; color: var(--muted); padding: 80px 20px; }
-    .empty-icon { font-size: 48px; font-weight: 900; color: #f0a030; margin-bottom: 16px; }
-    .empty-text { font-size: 18px; font-weight: 600; }
-    #print-area { display: none; }
-    @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area * { visibility: visible; }
-      #print-area { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
-      @page { size: 58mm auto; margin: 3mm 2mm; }
-      .receipt { font-family: 'Courier New', monospace; font-size: 10pt; width: 100%; color: #000; }
-      .receipt-center { text-align: center; }
-      .receipt-title { text-align: center; font-size: 13pt; font-weight: bold; margin-bottom: 2px; }
-      .receipt-mesa { text-align: center; font-size: 15pt; font-weight: bold; margin-bottom: 2px; }
-      .receipt-hora { text-align: center; font-size: 8pt; margin-bottom: 4px; }
-      .receipt-line { border-top: 1px dashed #000; margin: 3px 0; }
-      .receipt-row { display: flex; justify-content: space-between; font-size: 10pt; padding: 1px 0; }
-      .receipt-row-name { flex: 1; }
-      .receipt-row-price { white-space: nowrap; margin-left: 4px; }
-      .receipt-total { display: flex; justify-content: space-between; font-size: 11pt; font-weight: bold; padding: 2px 0; }
-      .receipt-nota { font-size: 8pt; margin-top: 3px; padding: 2px; border: 1px dashed #000; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#060d1a;--sf:#0f1d33;--sf2:#18294a;--br:#243552;--tx:#e8f0ff;--mu:#6b84aa;--gr:#22c55e;--am:#f59e0b;--re:#ef4444;}
+    body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+    .hdr{background:var(--sf);border-bottom:1px solid var(--br);padding:14px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10;}
+    .hlogo{font-size:20px;font-weight:800;color:#f0a030;}
+    .htitle{font-size:18px;font-weight:700;}
+    .pill{background:var(--re);border-radius:99px;font-size:13px;font-weight:800;padding:4px 12px;}
+    .status{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--gr);flex-shrink:0;}
+    .dot.off{background:var(--re);}
+    .dot.warn{background:var(--am);}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;padding:18px;}
+    .card{background:var(--sf);border:2px solid var(--gr);border-radius:14px;overflow:hidden;animation:pop 0.25s ease;}
+    @keyframes pop{from{transform:scale(0.93);opacity:0}to{transform:scale(1);opacity:1}}
+    .card.amber{border-color:var(--am);}
+    .card.amber .ch{background:var(--am);}
+    .card.hot{border-color:var(--re);}
+    .card.hot .ch{background:var(--re);}
+    .ch{background:var(--gr);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+    .cm{font-size:22px;font-weight:900;}
+    .ct{font-size:13px;font-weight:600;opacity:.9;}
+    .cb{padding:12px 14px;}
+    .ci{display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:16px;font-weight:600;border-bottom:1px solid var(--sf2);}
+    .ci:last-child{border-bottom:none;}
+    .cq{color:var(--gr);font-size:18px;font-weight:900;min-width:28px;}
+    .card.amber .cq{color:var(--am);}
+    .card.hot .cq{color:var(--re);}
+    .cnota{background:var(--sf2);border-left:3px solid var(--am);border-radius:6px;color:#fde68a;font-size:13px;margin-top:10px;padding:8px 10px;}
+    .cf{padding:10px 14px;border-top:1px solid var(--sf2);display:flex;gap:8px;}
+    .pbtn{background:#1e3a5f;border:1px solid #2d5280;border-radius:8px;color:#93c5fd;cursor:pointer;font-size:15px;font-weight:700;padding:10px 14px;}
+    .pbtn:active{background:#2563eb;color:#fff;}
+    .dbtn{background:var(--sf2);border:1px solid var(--br);border-radius:8px;color:var(--mu);cursor:pointer;font-size:15px;font-weight:700;padding:10px;flex:1;}
+    .dbtn:active{background:var(--gr);border-color:var(--gr);color:#fff;}
+    .empty{grid-column:1/-1;text-align:center;color:var(--mu);padding:80px 20px;}
+    .empty-icon{font-size:48px;font-weight:900;color:#f0a030;margin-bottom:16px;}
+    .empty-text{font-size:18px;font-weight:600;}
+    #pra{display:none;}
+    @media print{
+      body *{visibility:hidden;}
+      #pra,#pra *{visibility:visible;}
+      #pra{display:block!important;position:fixed;top:0;left:0;width:100%;}
+      @page{size:58mm auto;margin:3mm 2mm;}
+      .r{font-family:'Courier New',Courier,monospace;font-size:12pt;width:100%;color:#000;line-height:1.5;}
+      .r-title{text-align:center;font-size:15pt;font-weight:bold;letter-spacing:1px;margin-bottom:3px;}
+      .r-mesa{text-align:center;font-size:20pt;font-weight:bold;margin-bottom:2px;}
+      .r-hora{text-align:center;font-size:10pt;margin-bottom:5px;}
+      .r-line{border-top:1px dashed #000;margin:5px 0;}
+      .r-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12pt;font-weight:bold;padding:3px 0;}
+      .r-row-n{flex:1;padding-right:6px;}
+      .r-row-p{white-space:nowrap;font-size:12pt;font-weight:bold;}
+      .r-total{display:flex;justify-content:space-between;align-items:baseline;font-size:14pt;font-weight:bold;padding:4px 0;border-top:2px solid #000;margin-top:3px;}
+      .r-nota{font-size:10pt;margin-top:5px;padding:4px;border:1px dashed #000;}
     }
   </style>
 </head>
 <body>
-<div class="header">
-  <span class="header-logo">CB</span>
-  <span class="header-title">COCO BEACH - BARRA</span>
-  <span class="pending-pill" id="pill">0</span>
+<div class="hdr">
+  <span class="hlogo">CB</span>
+  <span class="htitle">COCO BEACH - BARRA</span>
+  <span class="pill" id="pill">0</span>
   <div class="status">
     <div class="dot off" id="dot"></div>
-    <span id="statusTxt">Conectando...</span>
+    <span id="stxt">Conectando...</span>
   </div>
 </div>
 <div class="grid" id="grid"></div>
-<div id="print-area"></div>
+<div id="pra"></div>
+
 <script>
-let orders = [];
-let ws;
-let wsOk = false;
-let knownIds = new Set();
+var orders=[],ws,wsOk=false,knownIds=new Set();
 
-function connect() {
-  try {
-    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(proto + '//' + location.host);
-    ws.onopen = () => { wsOk = true; setStatus('ws'); loadOrders(); };
-    ws.onclose = () => { wsOk = false; setStatus('poll'); setTimeout(connect, 5000); };
-    ws.onerror = () => { wsOk = false; setStatus('poll'); };
-    ws.onmessage = ({ data }) => {
-      try {
-        const msg = JSON.parse(data);
-        if (msg.type === 'nueva_comanda') {
-          if (!knownIds.has(msg.comanda.id)) {
-            knownIds.add(msg.comanda.id);
-            orders.unshift(msg.comanda);
-            ding(); render(); autoPrint(msg.comanda);
-          }
-        } else if (msg.type === 'comanda_completada') {
-          orders = orders.filter(o => o.id !== msg.id);
-          knownIds.delete(msg.id);
-          render();
+function connect(){
+  try{
+    var proto=location.protocol==='https:'?'wss:':'ws:';
+    ws=new WebSocket(proto+'//'+location.host);
+    ws.onopen=function(){wsOk=true;setStatus('ws');loadOrders();};
+    ws.onclose=function(){wsOk=false;setStatus('poll');setTimeout(connect,5000);};
+    ws.onerror=function(){wsOk=false;setStatus('poll');};
+    ws.onmessage=function(e){
+      try{
+        var msg=JSON.parse(e.data);
+        if(msg.type==='nueva_comanda'){
+          if(!knownIds.has(msg.comanda.id)){knownIds.add(msg.comanda.id);orders.unshift(msg.comanda);ding();render();autoPrint(msg.comanda);}
+        } else if(msg.type==='comanda_completada'){
+          orders=orders.filter(function(o){return o.id!==msg.id;});knownIds.delete(msg.id);render();
         }
-      } catch(e) {}
+      }catch(e){}
     };
-  } catch(e) { setStatus('poll'); setTimeout(connect, 5000); }
+  }catch(e){setStatus('poll');setTimeout(connect,5000);}
 }
 
-async function poll() {
-  try {
-    const data = await (await fetch('/api/orders')).json();
-    let hasNew = false;
-    data.forEach(order => {
-      if (!knownIds.has(order.id)) {
-        knownIds.add(order.id);
-        orders.unshift(order);
-        hasNew = true;
-        ding();
-        autoPrint(order);
-      }
+async function poll(){
+  try{
+    var data=await (await fetch('/api/orders')).json();
+    var hasNew=false;
+    data.forEach(function(order){
+      if(!knownIds.has(order.id)){knownIds.add(order.id);orders.unshift(order);hasNew=true;ding();autoPrint(order);}
     });
-    const serverIds = new Set(data.map(o => o.id));
-    const before = orders.length;
-    orders = orders.filter(o => serverIds.has(o.id));
-    if (hasNew || orders.length !== before) render();
-    if (!wsOk) setStatus('poll');
-  } catch(e) { if (!wsOk) setStatus('off'); }
+    var sIds=new Set(data.map(function(o){return o.id;}));
+    var before=orders.length;
+    orders=orders.filter(function(o){return sIds.has(o.id);});
+    if(hasNew||orders.length!==before)render();
+    if(!wsOk)setStatus('poll');
+  }catch(e){if(!wsOk)setStatus('off');}
 }
 
-function setStatus(state) {
-  const dot = document.getElementById('dot');
-  const txt = document.getElementById('statusTxt');
-  if (state === 'ws') { dot.className = 'dot'; txt.textContent = 'Conectado'; }
-  else if (state === 'poll') { dot.className = 'dot warn'; txt.textContent = 'En linea'; }
-  else { dot.className = 'dot off'; txt.textContent = 'Sin conexion'; }
+function setStatus(s){
+  var d=document.getElementById('dot'),t=document.getElementById('stxt');
+  if(s==='ws'){d.className='dot';t.textContent='Conectado';}
+  else if(s==='poll'){d.className='dot warn';t.textContent='En linea';}
+  else{d.className='dot off';t.textContent='Sin conexion';}
 }
 
-async function loadOrders() {
-  try {
-    const data = await (await fetch('/api/orders')).json();
-    orders = data; data.forEach(o => knownIds.add(o.id)); render();
-  } catch(e) {}
+async function loadOrders(){
+  try{var data=await (await fetch('/api/orders')).json();orders=data;data.forEach(function(o){knownIds.add(o.id);});render();}catch(e){}
 }
 
-function render() {
-  const pending = orders.filter(o => o.estado === 'pendiente');
-  document.getElementById('pill').textContent = pending.length;
-  const grid = document.getElementById('grid');
-  if (pending.length === 0) {
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">CB</div><div class="empty-text">Esperando comandas...</div></div>';
-    return;
-  }
-  grid.innerHTML = pending.map(order => {
-    const age = (Date.now() - new Date(order.timestamp)) / 60000;
-    const cls = age > 10 ? 'card hot' : age > 5 ? 'card amber' : 'card';
-    const hora = new Date(order.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    return '<div class="' + cls + '" id="c' + order.id + '"><div class="card-head"><span class="card-mesa">MESA ' + order.mesa + '</span><span class="card-time">' + hora + '</span></div><div class="card-body">' +
-      order.items.map(i => '<div class="card-item"><span class="card-qty">' + i.cantidad + 'x</span><span>' + i.nombre + '</span></div>').join('') +
-      (order.nota ? '<div class="card-nota">Nota: ' + order.nota + '</div>' : '') +
-      '</div><div class="card-foot"><button class="print-btn" onclick="printOrder(' + order.id + ')">Imprimir</button><button class="done-btn" onclick="complete(' + order.id + ')">Completado</button></div></div>';
+function render(){
+  var pending=orders.filter(function(o){return o.estado==='pendiente';});
+  document.getElementById('pill').textContent=pending.length;
+  var g=document.getElementById('grid');
+  if(!pending.length){g.innerHTML='<div class="empty"><div class="empty-icon">CB</div><div class="empty-text">Esperando comandas...</div></div>';return;}
+  g.innerHTML=pending.map(function(order){
+    var age=(Date.now()-new Date(order.timestamp))/60000;
+    var cls=age>10?'card hot':age>5?'card amber':'card';
+    var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="'+cls+'" id="c'+order.id+'">'
+      +'<div class="ch"><span class="cm">MESA '+order.mesa+'</span><span class="ct">'+hora+'</span></div>'
+      +'<div class="cb">'+order.items.map(function(i){return '<div class="ci"><span class="cq">'+i.cantidad+'x</span><span>'+i.nombre+'</span></div>';}).join('')
+      +(order.nota?'<div class="cnota">Nota: '+order.nota+'</div>':'')
+      +'</div>'
+      +'<div class="cf">'
+      +'<button class="pbtn" onclick="printOrder('+order.id+')">Imprimir</button>'
+      +'<button class="dbtn" onclick="complete('+order.id+')">Completado</button>'
+      +'</div></div>';
   }).join('');
 }
 
-function fmtP(p) {
-  if (!p && p !== 0) return '';
-  return p.toFixed(2).replace('.', ',') + 'EUR';
-}
+function fmtP(p){return p.toFixed(2).replace('.',',')+' EUR';}
 
-function buildReceiptHtml(order) {
-  const hora = new Date(order.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  const fecha = new Date(order.timestamp).toLocaleDateString('es-ES');
-  let total = 0;
-  const itemsHtml = order.items.map(i => {
-    const linea = (i.precio || 0) * i.cantidad;
-    total += linea;
-    const lineaStr = linea > 0 ? fmtP(linea) : '';
-    return '<div class="receipt-row"><span class="receipt-row-name">' + i.cantidad + 'x ' + i.nombre + '</span>' +
-      (lineaStr ? '<span class="receipt-row-price">' + lineaStr + '</span>' : '') + '</div>';
+function buildReceipt(order){
+  var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  var fecha=new Date(order.timestamp).toLocaleDateString('es-ES');
+  var total=0;
+  var rows=order.items.map(function(i){
+    var linea=(i.precio||0)*i.cantidad;
+    total+=linea;
+    return '<div class="r-row">'
+      +'<span class="r-row-n">'+i.cantidad+'x '+i.nombre+'</span>'
+      +(linea>0?'<span class="r-row-p">'+fmtP(linea)+'</span>':'')
+      +'</div>';
   }).join('');
-  const notaHtml = order.nota ? '<div class="receipt-nota">Nota: ' + order.nota + '</div>' : '';
-  const totalHtml = total > 0 ? '<div class="receipt-line"></div><div class="receipt-total"><span>TOTAL</span><span>' + fmtP(total) + '</span></div>' : '';
-  return '<div class="receipt">' +
-    '<div class="receipt-title">COCO BEACH</div>' +
-    '<div class="receipt-mesa">MESA ' + order.mesa + '</div>' +
-    '<div class="receipt-hora">' + fecha + ' - ' + hora + '</div>' +
-    '<div class="receipt-line"></div>' +
-    itemsHtml +
-    totalHtml +
-    notaHtml +
-    '<div class="receipt-line"></div>' +
-    '</div>';
+  var totalHtml=total>0?'<div class="r-total"><span>TOTAL</span><span>'+fmtP(total)+'</span></div>':'';
+  var notaHtml=order.nota?'<div class="r-nota">Nota: '+order.nota+'</div>':'';
+  return '<div class="r">'
+    +'<div class="r-title">COCO BEACH</div>'
+    +'<div class="r-mesa">MESA '+order.mesa+'</div>'
+    +'<div class="r-hora">'+fecha+' - '+hora+'</div>'
+    +'<div class="r-line"></div>'
+    +rows
+    +totalHtml
+    +notaHtml
+    +'<div class="r-line"></div>'
+    +'</div>';
 }
 
-function printOrder(id) {
-  const order = orders.find(o => o.id === id);
-  if (!order) return;
-  document.getElementById('print-area').innerHTML = buildReceiptHtml(order);
+function printOrder(id){
+  var order=orders.find(function(o){return o.id===id;});
+  if(!order)return;
+  document.getElementById('pra').innerHTML=buildReceipt(order);
   window.print();
 }
 
-function autoPrint(order) {
-  document.getElementById('print-area').innerHTML = buildReceiptHtml(order);
+function autoPrint(order){
+  document.getElementById('pra').innerHTML=buildReceipt(order);
   window.print();
 }
 
-async function complete(id) {
-  const card = document.getElementById('c' + id);
-  if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
-  try {
-    await fetch('/comanda/' + id + '/completar', { method: 'POST' });
-    orders = orders.filter(o => o.id !== id);
-    knownIds.delete(id);
-    render();
-  } catch { if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; } }
+async function complete(id){
+  var card=document.getElementById('c'+id);
+  if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
+  try{
+    await fetch('/comanda/'+id+'/completar',{method:'POST'});
+    orders=orders.filter(function(o){return o.id!==id;});knownIds.delete(id);render();
+  }catch(e){if(card){card.style.opacity='1';card.style.pointerEvents='';}}
 }
 
-function ding() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [[880, 0], [1100, 0.12], [880, 0.24]].forEach(([freq, t]) => {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq; o.type = 'sine';
-      g.gain.setValueAtTime(0.25, ctx.currentTime + t);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.1);
-      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.12);
+function ding(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[880,0],[1100,0.12],[880,0.24]].forEach(function(x){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=x[0];o.type='sine';
+      g.gain.setValueAtTime(0.25,ctx.currentTime+x[1]);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+x[1]+0.1);
+      o.start(ctx.currentTime+x[1]);o.stop(ctx.currentTime+x[1]+0.12);
     });
-  } catch {}
+  }catch(e){}
 }
 
-setInterval(poll, 4000);
-setInterval(render, 60000);
+setInterval(poll,4000);
+setInterval(render,60000);
 connect();
 poll();
 </script>
