@@ -6,7 +6,7 @@
   <title>Coco Beach - Barra</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{--bg:#060d1a;--sf:#0f1d33;--sf2:#18294a;--br:#243552;--tx:#e8f0ff;--mu:#6b84aa;--gr:#22c55e;--am:#f59e0b;--re:#ef4444;--ac:#3b82f6;}
+    :root{--bg:#060d1a;--sf:#0f1d33;--sf2:#18294a;--br:#243552;--tx:#e8f0ff;--mu:#6b84aa;--gr:#22c55e;--am:#f59e0b;--re:#ef4444;}
     body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
     .hdr{background:var(--sf);border-bottom:1px solid var(--br);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;flex-wrap:wrap;}
     .hlogo{font-size:20px;font-weight:800;color:#f0a030;}
@@ -34,8 +34,7 @@
     .ci{display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:16px;font-weight:600;border-bottom:1px solid var(--sf2);}
     .ci:last-child{border-bottom:none;}
     .cq{color:var(--gr);font-size:18px;font-weight:900;min-width:28px;}
-    .card.am .cq{color:#000;}
-    .card.hot .cq{color:#000;}
+    .card.am .cq,.card.hot .cq{color:#000;}
     .cnota{background:var(--sf2);border-left:3px solid var(--am);border-radius:6px;color:#fde68a;font-size:13px;margin-top:10px;padding:8px 10px;}
     .cf{padding:10px 14px;border-top:1px solid var(--sf2);display:flex;gap:8px;}
     .pbtn{background:#1e3a5f;border:1px solid #2d5280;border-radius:8px;color:#93c5fd;cursor:pointer;font-size:15px;font-weight:700;padding:10px 14px;}
@@ -106,196 +105,184 @@ var BASE = location.origin;
 var WS_URL = BASE.replace('https','wss').replace('http','ws') + '/ws';
 var orders = [], ws, knownIds = new Set();
 
-// Helper: get item name (n or name) and price (p or price)
-function iName(it){ return it.n || it.name || '?'; }
-function iPrice(it){ return it.p !== undefined ? it.p : (it.price !== undefined ? it.price : 0); }
+// Items llegan como {nombre, cantidad, precio} desde index.html
+function iNombre(it){ return it.nombre || it.n || it.name || '?'; }
+function iPrecio(it){ var p = it.precio; if(p===undefined) p = it.p; if(p===undefined) p = it.price; return p||0; }
+function iCantidad(it){ return it.cantidad || it.qty || 1; }
 
 function numFmt(p){ return (p||0).toFixed(2).replace('.',','); }
 
-function setStatus(ok, txt){
-  document.getElementById('dot').className = 'dot' + (ok ? '' : ' off');
-  document.getElementById('stxt').textContent = txt;
+function setStatus(ok,txt){
+  document.getElementById('dot').className='dot'+(ok?'':' off');
+  document.getElementById('stxt').textContent=txt;
 }
 
-function toast(msg, err){
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (err ? ' err' : '') + ' show';
+function toast(msg,err){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(err?' err':'')+' show';
   clearTimeout(t._tid);
-  t._tid = setTimeout(function(){ t.className = 'toast'; }, 2800);
+  t._tid=setTimeout(function(){t.className='toast';},2800);
 }
 
 function ageClass(ts){
-  var m = (Date.now() - new Date(ts)) / 60000;
-  return m > 10 ? 'hot' : m > 5 ? 'am' : '';
+  var m=(Date.now()-new Date(ts))/60000;
+  return m>10?'hot':m>5?'am':'';
 }
 
 function buildTicket(order){
-  var ts = new Date(order.timestamp);
-  var hora = ts.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  var mesaTxt = order.mesa ? 'MESA ' + order.mesa : 'SIN MESA';
-  var rows = '';
-  var total = 0;
-  if(order.items && order.items.length){
-    order.items.forEach(function(it){
-      var q = it.qty || 1;
-      var p = iPrice(it);
-      total += p * q;
-      rows += '<div class="tkt-fila"><span class="tkt-qty">' + q + 'x</span><span class="tkt-nom">' + iName(it) + '</span><span class="tkt-prec">' + numFmt(p) + '</span></div>';
-    });
-  }
-  return '<div class="tkt">' +
-    '<div class="tkt-titulo">COCO BEACH</div>' +
-    '<div class="tkt-sep"></div>' +
-    '<div class="tkt-mesa">' + mesaTxt + '</div>' +
-    '<div class="tkt-hora">' + hora + '</div>' +
-    '<div class="tkt-num">#' + order.id + '</div>' +
-    '<div class="tkt-sep"></div>' +
-    rows +
-    '<div class="tkt-sep"></div>' +
-    '<div class="tkt-total"><span>TOTAL</span><span>' + numFmt(total) + ' &euro;</span></div>' +
+  var ts=new Date(order.timestamp);
+  var hora=ts.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  var mesaTxt=order.mesa?'MESA '+order.mesa:'SIN MESA';
+  var rows='',total=0;
+  (order.items||[]).forEach(function(it){
+    var q=iCantidad(it), p=iPrecio(it), nm=iNombre(it);
+    total+=p*q;
+    rows+='<div class="tkt-fila"><span class="tkt-qty">'+q+'x</span><span class="tkt-nom">'+nm+'</span><span class="tkt-prec">'+numFmt(p)+'</span></div>';
+  });
+  return '<div class="tkt">'+
+    '<div class="tkt-titulo">COCO BEACH</div>'+
+    '<div class="tkt-sep"></div>'+
+    '<div class="tkt-mesa">'+mesaTxt+'</div>'+
+    '<div class="tkt-hora">'+hora+'</div>'+
+    '<div class="tkt-num">#'+order.id+'</div>'+
+    '<div class="tkt-sep"></div>'+
+    rows+
+    '<div class="tkt-sep"></div>'+
+    '<div class="tkt-total"><span>TOTAL</span><span>'+numFmt(total)+' &euro;</span></div>'+
     '</div>';
 }
 
 function autoPrint(order){
-  document.getElementById('pra').innerHTML = buildTicket(order);
+  document.getElementById('pra').innerHTML=buildTicket(order);
   window.print();
 }
 
 function printOrder(id){
-  var o = orders.find(function(x){ return x.id === id; });
+  var o=orders.find(function(x){return x.id===id;});
   if(!o) return;
-  document.getElementById('pra').innerHTML = buildTicket(o);
+  document.getElementById('pra').innerHTML=buildTicket(o);
   window.print();
 }
 
 function complete(id){
-  fetch(BASE + '/api/orders/' + id + '/complete', {method:'POST'})
+  fetch(BASE+'/api/orders/'+id+'/complete',{method:'POST'})
     .catch(function(){})
-    .finally(function(){ loadOrders(); });
+    .finally(function(){loadOrders();});
 }
 
 function renderCards(){
-  var pending = orders.filter(function(o){ return o.estado !== 'completada'; });
-  document.getElementById('pill').textContent = pending.length;
-  var g = document.getElementById('grid');
+  var pending=orders.filter(function(o){return o.estado!=='completada';});
+  document.getElementById('pill').textContent=pending.length;
+  var g=document.getElementById('grid');
   if(!pending.length){
-    g.innerHTML = '<div class="empty"><div class="empty-icon">&#9749;</div><div class="empty-text">Sin comandas pendientes</div></div>';
+    g.innerHTML='<div class="empty"><div class="empty-icon">&#9749;</div><div class="empty-text">Sin comandas pendientes</div></div>';
     return;
   }
-  g.innerHTML = pending.map(function(o){
-    var ts = new Date(o.timestamp);
-    var hora = ts.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-    var cls = ageClass(o.timestamp);
-    var itemsHtml = (o.items||[]).map(function(it){
-      return '<div class="ci"><span class="cq">' + (it.qty||1) + 'x</span><span>' + iName(it) + '</span></div>';
+  g.innerHTML=pending.map(function(o){
+    var ts=new Date(o.timestamp);
+    var hora=ts.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    var cls=ageClass(o.timestamp);
+    var itemsHtml=(o.items||[]).map(function(it){
+      return '<div class="ci"><span class="cq">'+iCantidad(it)+'x</span><span>'+iNombre(it)+'</span></div>';
     }).join('');
-    var notaHtml = o.nota ? '<div class="cnota">&#128274; ' + o.nota + '</div>' : '';
-    var camHtml = o.camarero ? '<div class="ccam">&#128100; ' + o.camarero + '</div>' : '';
-    return '<div class="card ' + cls + '" id="c' + o.id + '">' +
-      '<div class="ch"><span class="cm2">' + (o.mesa ? 'Mesa ' + o.mesa : 'SIN MESA') + '</span><span class="ct">' + hora + '</span></div>' +
-      '<div class="cb">' + camHtml + itemsHtml + notaHtml + '</div>' +
-      '<div class="cf">' +
-        '<button class="pbtn" onclick="printOrder(' + o.id + ')">&#128424; Imprimir</button>' +
-        '<button class="dbtn" onclick="complete(' + o.id + ')">Completado &#10003;</button>' +
-      '</div>' +
+    var notaHtml=o.nota?'<div class="cnota">&#128274; '+o.nota+'</div>':'';
+    var camHtml=o.camarero?'<div class="ccam">&#128100; '+o.camarero+'</div>':'';
+    return '<div class="card '+cls+'" id="c'+o.id+'">'+
+      '<div class="ch"><span class="cm2">'+(o.mesa?'Mesa '+o.mesa:'SIN MESA')+'</span><span class="ct">'+hora+'</span></div>'+
+      '<div class="cb">'+camHtml+itemsHtml+notaHtml+'</div>'+
+      '<div class="cf">'+
+        '<button class="pbtn" onclick="printOrder('+o.id+')">&#128424; Imprimir</button>'+
+        '<button class="dbtn" onclick="complete('+o.id+')">Completado &#10003;</button>'+
+      '</div>'+
     '</div>';
   }).join('');
 }
 
 function loadOrders(){
-  fetch(BASE + '/api/orders')
-    .then(function(r){ return r.json(); })
+  fetch(BASE+'/api/orders')
+    .then(function(r){return r.json();})
     .then(function(data){
-      orders = data;
+      orders=data;
       renderCards();
       data.forEach(function(o){
-        if(o.estado !== 'completada' && !knownIds.has(o.id)){
+        if(o.estado!=='completada'&&!knownIds.has(o.id)){
           knownIds.add(o.id);
           autoPrint(o);
         }
       });
     })
-    .catch(function(){ setStatus(false, 'Error al cargar'); });
+    .catch(function(){setStatus(false,'Error al cargar');});
 }
 
 function connect(){
-  ws = new WebSocket(WS_URL);
-  ws.onopen = function(){ setStatus(true, 'Conectado'); };
-  ws.onclose = function(){ setStatus(false, 'Desconectado — reconectando...'); setTimeout(connect, 3000); };
-  ws.onerror = function(){ setStatus(false, 'Error WS'); };
-  ws.onmessage = function(e){
-    try {
-      var msg = JSON.parse(e.data);
-      if(msg.type === 'nueva_comanda'){
-        var o = msg.comanda;
+  ws=new WebSocket(WS_URL);
+  ws.onopen=function(){setStatus(true,'Conectado');};
+  ws.onclose=function(){setStatus(false,'Desconectado — reconectando...');setTimeout(connect,3000);};
+  ws.onerror=function(){setStatus(false,'Error WS');};
+  ws.onmessage=function(e){
+    try{
+      var msg=JSON.parse(e.data);
+      if(msg.type==='nueva_comanda'){
+        var o=msg.comanda;
         if(!knownIds.has(o.id)){
           knownIds.add(o.id);
           orders.push(o);
           renderCards();
           autoPrint(o);
         }
-      } else if(msg.type === 'orden_completada'){
+      } else if(msg.type==='orden_completada'){
         loadOrders();
       }
-    } catch(ex){}
+    }catch(ex){}
   };
 }
 
 setInterval(function(){
-  fetch(BASE + '/api/orders')
-    .then(function(r){ return r.json(); })
+  fetch(BASE+'/api/orders')
+    .then(function(r){return r.json();})
     .then(function(data){
-      orders = data;
+      orders=data;
       renderCards();
       data.forEach(function(o){
-        if(o.estado !== 'completada' && !knownIds.has(o.id)){
+        if(o.estado!=='completada'&&!knownIds.has(o.id)){
           knownIds.add(o.id);
           autoPrint(o);
         }
       });
     }).catch(function(){});
-}, 4000);
+},4000);
 
 function openNewOrder(){
-  var frame = document.getElementById('nopFrame');
-  if(!frame.src || frame.src === 'about:blank'){
-    frame.src = '/';
-  }
+  var f=document.getElementById('nopFrame');
+  if(!f.src||f.src==='about:blank') f.src='/';
   document.getElementById('nopOvl').classList.add('open');
 }
 function closeNewOrder(){
   document.getElementById('nopOvl').classList.remove('open');
 }
 
-var _drawerPort = null;
+var _drawerPort=null;
 async function abrirCaja(){
-  var btn = document.getElementById('cajaBtn');
-  if(!navigator.serial){
-    toast('Web Serial no disponible — usa Chrome 89+ con HTTPS', true);
-    return;
-  }
-  btn.innerHTML = 'Abriendo...';
-  btn.disabled = true;
-  try {
+  var btn=document.getElementById('cajaBtn');
+  if(!navigator.serial){toast('Web Serial no disponible',true);return;}
+  btn.innerHTML='Abriendo...';btn.disabled=true;
+  try{
     if(!_drawerPort){
-      var ports = await navigator.serial.getPorts();
-      _drawerPort = ports.length ? ports[0] : await navigator.serial.requestPort();
+      var ports=await navigator.serial.getPorts();
+      _drawerPort=ports.length?ports[0]:await navigator.serial.requestPort();
     }
-    await _drawerPort.open({ baudRate: 9600 });
-    var w = _drawerPort.writable.getWriter();
-    await w.write(new Uint8Array([0x1B, 0x70, 0x00, 0x32, 0xFF]));
+    await _drawerPort.open({baudRate:9600});
+    var w=_drawerPort.writable.getWriter();
+    await w.write(new Uint8Array([0x1B,0x70,0x00,0x32,0xFF]));
     w.releaseLock();
     await _drawerPort.close();
     toast('Caja abierta ✓');
-  } catch(e){
-    _drawerPort = null;
-    if(e.name !== 'NotFoundError'){
-      toast('Caja: ' + e.message, true);
-    }
-  } finally {
-    btn.innerHTML = '&#128181; Abrir Caja';
-    btn.disabled = false;
+  }catch(e){
+    _drawerPort=null;
+    if(e.name!=='NotFoundError') toast('Caja: '+e.message,true);
+  }finally{
+    btn.innerHTML='&#128181; Abrir Caja';btn.disabled=false;
   }
 }
 
