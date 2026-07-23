@@ -6,33 +6,36 @@
   <title>Coco Beach - Barra</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{--bg:#060d1a;--sf:#0f1d33;--sf2:#18294a;--br:#243552;--tx:#e8f0ff;--mu:#6b84aa;--gr:#22c55e;--am:#f59e0b;--re:#ef4444;}
+    :root{--bg:#060d1a;--sf:#0f1d33;--sf2:#18294a;--br:#243552;--tx:#e8f0ff;--mu:#6b84aa;--gr:#22c55e;--am:#f59e0b;--re:#ef4444;--ac:#3b82f6;}
     body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
-    .hdr{background:var(--sf);border-bottom:1px solid var(--br);padding:14px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10;}
+    .hdr{background:var(--sf);border-bottom:1px solid var(--br);padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;flex-wrap:wrap;}
     .hlogo{font-size:20px;font-weight:800;color:#f0a030;}
-    .htitle{font-size:18px;font-weight:700;}
-    .pill{background:var(--re);border-radius:99px;font-size:13px;font-weight:800;padding:4px 12px;}
-    .status{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);}
-    .dot{width:9px;height:9px;border-radius:50%;background:var(--gr);flex-shrink:0;}
+    .htitle{font-size:16px;font-weight:700;flex:1;}
+    .pill{background:var(--re);border-radius:99px;font-size:13px;font-weight:800;padding:4px 12px;white-space:nowrap;}
+    .hbtn{border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:800;padding:9px 14px;white-space:nowrap;}
+    .hbtn-gr{background:var(--gr);color:#000;}
+    .hbtn-am{background:var(--am);color:#000;}
+    .hbtn-am:disabled{background:#7a5e0b;color:#aaa;cursor:default;}
+    .status{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--gr);}
     .dot.off{background:var(--re);}
-    .dot.warn{background:var(--am);}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;padding:18px;}
-    .card{background:var(--sf);border:2px solid var(--gr);border-radius:14px;overflow:hidden;animation:pop 0.25s ease;}
-    @keyframes pop{from{transform:scale(0.93);opacity:0}to{transform:scale(1);opacity:1}}
-    .card.amber{border-color:var(--am);}
-    .card.amber .ch{background:var(--am);}
+    .card{background:var(--sf);border:2px solid var(--gr);border-radius:14px;overflow:hidden;animation:pop .25s ease;}
+    @keyframes pop{from{transform:scale(.93);opacity:0}to{transform:scale(1);opacity:1}}
+    .card.am{border-color:var(--am);}
+    .card.am .ch{background:var(--am);}
     .card.hot{border-color:var(--re);}
     .card.hot .ch{background:var(--re);}
     .ch{background:var(--gr);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
-    .cm{font-size:22px;font-weight:900;}
+    .cm2{font-size:22px;font-weight:900;}
     .ct{font-size:13px;font-weight:600;opacity:.9;}
     .cb{padding:12px 14px;}
     .ccam{font-size:12px;color:var(--mu);margin-bottom:8px;}
     .ci{display:flex;align-items:baseline;gap:8px;padding:5px 0;font-size:16px;font-weight:600;border-bottom:1px solid var(--sf2);}
     .ci:last-child{border-bottom:none;}
     .cq{color:var(--gr);font-size:18px;font-weight:900;min-width:28px;}
-    .card.amber .cq{color:var(--am);}
-    .card.hot .cq{color:var(--re);}
+    .card.am .cq{color:#000;}
+    .card.hot .cq{color:#000;}
     .cnota{background:var(--sf2);border-left:3px solid var(--am);border-radius:6px;color:#fde68a;font-size:13px;margin-top:10px;padding:8px 10px;}
     .cf{padding:10px 14px;border-top:1px solid var(--sf2);display:flex;gap:8px;}
     .pbtn{background:#1e3a5f;border:1px solid #2d5280;border-radius:8px;color:#93c5fd;cursor:pointer;font-size:15px;font-weight:700;padding:10px 14px;}
@@ -40,207 +43,262 @@
     .dbtn{background:var(--sf2);border:1px solid var(--br);border-radius:8px;color:var(--mu);cursor:pointer;font-size:15px;font-weight:700;padding:10px;flex:1;}
     .dbtn:active{background:var(--gr);border-color:var(--gr);color:#fff;}
     .empty{grid-column:1/-1;text-align:center;color:var(--mu);padding:80px 20px;}
-    .empty-icon{font-size:48px;font-weight:900;color:#f0a030;margin-bottom:16px;}
+    .empty-icon{font-size:48px;color:#f0a030;margin-bottom:16px;}
     .empty-text{font-size:18px;font-weight:600;}
+    .nop{display:none;position:fixed;inset:0;background:#000;z-index:50;flex-direction:column;}
+    .nop.open{display:flex;}
+    .nop-hdr{background:var(--sf);border-bottom:1px solid var(--br);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .nop-title{font-size:16px;font-weight:800;flex:1;}
+    .nop-close{background:var(--sf2);border:1px solid var(--br);border-radius:8px;color:var(--mu);cursor:pointer;font-size:14px;font-weight:700;padding:8px 14px;}
+    .nop-frame{flex:1;border:none;width:100%;background:#fff;}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid var(--gr);border-radius:10px;color:var(--gr);font-size:14px;font-weight:700;padding:10px 22px;z-index:200;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast.err{background:#2a1a1a;border-color:var(--re);color:var(--re);}
     #pra{display:none;}
-
-    @media print {
-      body * { visibility: hidden; }
-      #pra, #pra * { visibility: visible; }
-      #pra { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
-      @page { size: 58mm auto; margin: 2mm 1mm; }
-
-      .tkt { font-family: Arial, Helvetica, sans-serif; font-size: 13pt; font-weight: normal; color: #000; width: 100%; line-height: 1.45; }
-      .tkt-titulo { text-align: center; font-size: 15pt; font-weight: 900; letter-spacing: 1px; margin-bottom: 2px; }
-      .tkt-mesa  { text-align: center; font-size: 22pt; font-weight: 900; margin-bottom: 1px; }
-      .tkt-hora  { text-align: center; font-size: 10pt; font-weight: normal; margin-bottom: 5px; }
-      .tkt-num   { text-align: center; font-size: 10pt; font-weight: normal; color: #555; margin-bottom: 3px; }
-      .tkt-sep   { border-top: 1px dashed #000; margin: 4px 0; }
-
-      .tkt-fila  { display: flex; align-items: baseline; padding: 3px 0; font-size: 13pt; font-weight: normal; }
-      .tkt-qty   { min-width: 20px; margin-right: 5px; flex-shrink: 0; }
-      .tkt-nom   { flex: 1; word-break: break-word; }
-      .tkt-prec  { white-space: nowrap; margin-left: 4px; flex-shrink: 0; }
-
-      .tkt-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 16pt; font-weight: 900; padding: 5px 0; border-top: 2px solid #000; margin-top: 4px; }
+    @media print{
+      body *{visibility:hidden;}
+      #pra,#pra *{visibility:visible;}
+      #pra{display:block!important;position:fixed;top:0;left:0;width:100%;}
+      @page{size:58mm auto;margin:2mm 1mm;}
+      .tkt{font-family:Arial,Helvetica,sans-serif;font-size:13pt;font-weight:normal;color:#000;width:100%;line-height:1.45;}
+      .tkt-titulo{text-align:center;font-size:15pt;font-weight:900;letter-spacing:1px;margin-bottom:2px;}
+      .tkt-mesa{text-align:center;font-size:22pt;font-weight:900;margin-bottom:1px;}
+      .tkt-hora{text-align:center;font-size:10pt;font-weight:normal;margin-bottom:5px;}
+      .tkt-num{text-align:center;font-size:10pt;font-weight:normal;color:#555;margin-bottom:3px;}
+      .tkt-sep{border-top:1px dashed #000;margin:4px 0;}
+      .tkt-fila{display:flex;align-items:baseline;padding:3px 0;font-size:13pt;font-weight:normal;}
+      .tkt-qty{min-width:20px;margin-right:5px;flex-shrink:0;}
+      .tkt-nom{flex:1;word-break:break-word;}
+      .tkt-prec{white-space:nowrap;margin-left:4px;flex-shrink:0;}
+      .tkt-total{display:flex;justify-content:space-between;align-items:baseline;font-size:16pt;font-weight:900;padding:5px 0;border-top:2px solid #000;margin-top:4px;}
     }
   </style>
 </head>
 <body>
+
 <div class="hdr">
   <span class="hlogo">CB</span>
   <span class="htitle">COCO BEACH — BARRA</span>
   <span class="pill" id="pill">0</span>
+  <button class="hbtn hbtn-gr" onclick="openNewOrder()">+ Pedido</button>
+  <button class="hbtn hbtn-am" id="cajaBtn" onclick="abrirCaja()">&#128181; Abrir Caja</button>
   <div class="status">
     <div class="dot off" id="dot"></div>
     <span id="stxt">Conectando...</span>
   </div>
 </div>
+
 <div class="grid" id="grid"></div>
 <div id="pra"></div>
 
+<!-- NUEVO PEDIDO PANEL (iframe con index.html) -->
+<div class="nop" id="nopOvl">
+  <div class="nop-hdr">
+    <span class="nop-title">&#128722; Nuevo Pedido — Barra</span>
+    <button class="nop-close" onclick="closeNewOrder()">&#10005; Cerrar</button>
+  </div>
+  <iframe class="nop-frame" id="nopFrame" src="about:blank"></iframe>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-var orders=[],ws,wsOk=false,knownIds=new Set();
-
-function connect(){
-  try{
-    var proto=location.protocol==='https:'?'wss:':'ws:';
-    ws=new WebSocket(proto+'//'+location.host);
-    ws.onopen=function(){wsOk=true;setStatus('ws');loadOrders();};
-    ws.onclose=function(){wsOk=false;setStatus('poll');setTimeout(connect,5000);};
-    ws.onerror=function(){wsOk=false;setStatus('poll');};
-    ws.onmessage=function(ev){
-      try{
-        var msg=JSON.parse(ev.data);
-        if(msg.type==='nueva_comanda'){
-          if(!knownIds.has(msg.comanda.id)){
-            knownIds.add(msg.comanda.id);
-            orders.unshift(msg.comanda);
-            ding(); render(); autoPrint(msg.comanda);
-          }
-        } else if(msg.type==='comanda_completada'){
-          orders=orders.filter(function(o){return o.id!==msg.id;});
-          knownIds.delete(msg.id); render();
-        }
-      }catch(e){}
-    };
-  }catch(e){setStatus('poll');setTimeout(connect,5000);}
-}
-
-async function poll(){
-  try{
-    var data=await (await fetch('/api/orders')).json();
-    var hasNew=false;
-    data.forEach(function(order){
-      if(!knownIds.has(order.id)){
-        knownIds.add(order.id); orders.unshift(order);
-        hasNew=true; ding(); autoPrint(order);
-      }
-    });
-    var sIds=new Set(data.map(function(o){return o.id;}));
-    var before=orders.length;
-    orders=orders.filter(function(o){return sIds.has(o.id);});
-    if(hasNew||orders.length!==before) render();
-    if(!wsOk) setStatus('poll');
-  }catch(e){if(!wsOk)setStatus('off');}
-}
-
-function setStatus(s){
-  var d=document.getElementById('dot'),t=document.getElementById('stxt');
-  if(s==='ws'){d.className='dot';t.textContent='Conectado';}
-  else if(s==='poll'){d.className='dot warn';t.textContent='En linea';}
-  else{d.className='dot off';t.textContent='Sin conexion';}
-}
-
-async function loadOrders(){
-  try{
-    var data=await (await fetch('/api/orders')).json();
-    orders=data; data.forEach(function(o){knownIds.add(o.id);}); render();
-  }catch(e){}
-}
-
-function render(){
-  var pending=orders.filter(function(o){return o.estado==='pendiente';});
-  document.getElementById('pill').textContent=pending.length;
-  var g=document.getElementById('grid');
-  if(!pending.length){
-    g.innerHTML='<div class="empty"><div class="empty-icon">CB</div><div class="empty-text">Esperando comandas...</div></div>';
-    return;
-  }
-  g.innerHTML=pending.map(function(order){
-    var age=(Date.now()-new Date(order.timestamp))/60000;
-    var cls=age>10?'card hot':age>5?'card amber':'card';
-    var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-    var mesaTxt=order.mesa?'MESA '+order.mesa:'SIN MESA';
-    return '<div class="'+cls+'" id="c'+order.id+'">'
-      +'<div class="ch"><span class="cm">'+mesaTxt+'</span><span class="ct">'+hora+'</span></div>'
-      +'<div class="cb">'
-      +(order.camarero?'<div class="ccam">&#128100; '+order.camarero+'</div>':'')
-      +order.items.map(function(i){
-        return '<div class="ci"><span class="cq">'+i.cantidad+'</span><span>'+i.nombre+'</span></div>';
-      }).join('')
-      +(order.nota?'<div class="cnota">&#128274; '+order.nota+'</div>':'')
-      +'</div>'
-      +'<div class="cf">'
-      +'<button class="pbtn" onclick="printOrder('+order.id+')">Imprimir</button>'
-      +'<button class="dbtn" onclick="complete('+order.id+')">Completado &#10003;</button>'
-      +'</div></div>';
-  }).join('');
-}
+var BASE = location.origin;
+var WS_URL = BASE.replace('https','wss').replace('http','ws') + '/ws';
+var orders = [], ws, knownIds = new Set();
 
 function numFmt(p){ return p.toFixed(2).replace('.',','); }
 
-function buildTicket(order){
-  var hora=new Date(order.timestamp).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  var fecha=new Date(order.timestamp).toLocaleDateString('es-ES');
-  var total=0;
-  var mesaTxt=order.mesa?'MESA '+order.mesa:'SIN MESA';
-  var filas=order.items.map(function(i){
-    var linea=(i.precio||0)*i.cantidad;
-    total+=linea;
-    return '<div class="tkt-fila">'
-      +'<span class="tkt-qty">'+i.cantidad+'</span>'
-      +'<span class="tkt-nom">'+i.nombre+'</span>'
-      +(linea>0?'<span class="tkt-prec">'+numFmt(linea)+'</span>':'')
-      +'</div>';
-  }).join('');
-  var totHtml=total>0
-    ?'<div class="tkt-total"><span>TOTAL</span><span>'+numFmt(total)+' €</span></div>'
-    :'';
-  return '<div class="tkt">'
-    +'<div class="tkt-titulo">COCO BEACH</div>'
-    +'<div class="tkt-mesa">'+mesaTxt+'</div>'
-    +'<div class="tkt-hora">'+fecha+' '+hora+'</div>'
-    +'<div class="tkt-num">#'+order.id+'</div>'
-    +'<div class="tkt-sep"></div>'
-    +filas
-    +totHtml
-    +'<div class="tkt-sep"></div>'
-    +'</div>';
+function setStatus(ok, txt){
+  document.getElementById('dot').className = 'dot' + (ok ? '' : ' off');
+  document.getElementById('stxt').textContent = txt;
 }
 
-function printOrder(id){
-  var o=orders.find(function(x){return x.id===id;});
-  if(!o) return;
-  document.getElementById('pra').innerHTML=buildTicket(o);
-  window.print();
+function toast(msg, err){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (err ? ' err' : '') + ' show';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function(){ t.className = 'toast'; }, 2800);
+}
+
+function ageClass(ts){
+  var m = (Date.now() - new Date(ts)) / 60000;
+  return m > 10 ? 'hot' : m > 5 ? 'am' : '';
+}
+
+function buildTicket(order){
+  var ts = new Date(order.timestamp);
+  var hora = ts.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  var mesaTxt = order.mesa ? 'MESA ' + order.mesa : 'SIN MESA';
+  var rows = '';
+  var total = 0;
+  if(order.items && order.items.length){
+    order.items.forEach(function(it){
+      var q = it.qty || 1;
+      total += (it.price||0) * q;
+      rows += '<div class="tkt-fila"><span class="tkt-qty">' + q + 'x</span><span class="tkt-nom">' + it.name + '</span><span class="tkt-prec">' + numFmt(it.price||0) + '</span></div>';
+    });
+  }
+  return '<div class="tkt">' +
+    '<div class="tkt-titulo">COCO BEACH</div>' +
+    '<div class="tkt-sep"></div>' +
+    '<div class="tkt-mesa">' + mesaTxt + '</div>' +
+    '<div class="tkt-hora">' + hora + '</div>' +
+    '<div class="tkt-num">#' + order.id + '</div>' +
+    '<div class="tkt-sep"></div>' +
+    rows +
+    '<div class="tkt-sep"></div>' +
+    '<div class="tkt-total"><span>TOTAL</span><span>' + numFmt(total) + ' &euro;</span></div>' +
+    '</div>';
 }
 
 function autoPrint(order){
-  document.getElementById('pra').innerHTML=buildTicket(order);
+  document.getElementById('pra').innerHTML = buildTicket(order);
   window.print();
 }
 
-async function complete(id){
-  var card=document.getElementById('c'+id);
-  if(card){card.style.opacity='0.4';card.style.pointerEvents='none';}
-  try{
-    await fetch('/comanda/'+id+'/completar',{method:'POST'});
-    orders=orders.filter(function(o){return o.id!==id;});
-    knownIds.delete(id); render();
-  }catch(e){
-    if(card){card.style.opacity='1';card.style.pointerEvents='';}
+function printOrder(id){
+  var o = orders.find(function(x){ return x.id === id; });
+  if(!o) return;
+  document.getElementById('pra').innerHTML = buildTicket(o);
+  window.print();
+}
+
+function complete(id){
+  fetch(BASE + '/api/orders/' + id + '/complete', {method:'POST'})
+    .catch(function(){})
+    .finally(function(){ loadOrders(); });
+}
+
+function renderCards(){
+  var pending = orders.filter(function(o){ return o.estado !== 'completada'; });
+  document.getElementById('pill').textContent = pending.length;
+  var g = document.getElementById('grid');
+  if(!pending.length){
+    g.innerHTML = '<div class="empty"><div class="empty-icon">&#9749;</div><div class="empty-text">Sin comandas pendientes</div></div>';
+    return;
+  }
+  g.innerHTML = pending.map(function(o){
+    var ts = new Date(o.timestamp);
+    var hora = ts.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    var cls = ageClass(o.timestamp);
+    var itemsHtml = (o.items||[]).map(function(it){
+      return '<div class="ci"><span class="cq">' + (it.qty||1) + 'x</span><span>' + it.name + '</span></div>';
+    }).join('');
+    var notaHtml = o.nota ? '<div class="cnota">&#128274; ' + o.nota + '</div>' : '';
+    var camHtml = o.camarero ? '<div class="ccam">&#128100; ' + o.camarero + '</div>' : '';
+    return '<div class="card ' + cls + '" id="c' + o.id + '">' +
+      '<div class="ch"><span class="cm2">' + (o.mesa ? 'Mesa ' + o.mesa : 'SIN MESA') + '</span><span class="ct">' + hora + '</span></div>' +
+      '<div class="cb">' + camHtml + itemsHtml + notaHtml + '</div>' +
+      '<div class="cf">' +
+        '<button class="pbtn" onclick="printOrder(' + o.id + ')">&#128424; Imprimir</button>' +
+        '<button class="dbtn" onclick="complete(' + o.id + ')">Completado &#10003;</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function loadOrders(){
+  fetch(BASE + '/api/orders')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      orders = data;
+      renderCards();
+      data.forEach(function(o){
+        if(o.estado !== 'completada' && !knownIds.has(o.id)){
+          knownIds.add(o.id);
+          autoPrint(o);
+        }
+      });
+    })
+    .catch(function(){ setStatus(false, 'Error al cargar'); });
+}
+
+function connect(){
+  ws = new WebSocket(WS_URL);
+  ws.onopen = function(){ setStatus(true, 'Conectado'); };
+  ws.onclose = function(){ setStatus(false, 'Desconectado — reconectando...'); setTimeout(connect, 3000); };
+  ws.onerror = function(){ setStatus(false, 'Error WS'); };
+  ws.onmessage = function(e){
+    try {
+      var msg = JSON.parse(e.data);
+      if(msg.type === 'nueva_comanda'){
+        var o = msg.comanda;
+        if(!knownIds.has(o.id)){
+          knownIds.add(o.id);
+          orders.push(o);
+          renderCards();
+          autoPrint(o);
+        }
+      } else if(msg.type === 'orden_completada'){
+        loadOrders();
+      }
+    } catch(ex){}
+  };
+}
+
+setInterval(function(){
+  fetch(BASE + '/api/orders')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      orders = data;
+      renderCards();
+      data.forEach(function(o){
+        if(o.estado !== 'completada' && !knownIds.has(o.id)){
+          knownIds.add(o.id);
+          autoPrint(o);
+        }
+      });
+    }).catch(function(){});
+}, 4000);
+
+// === NUEVO PEDIDO (iframe index.html) ===
+function openNewOrder(){
+  var frame = document.getElementById('nopFrame');
+  if(!frame.src || frame.src === 'about:blank'){
+    frame.src = '/';
+  }
+  document.getElementById('nopOvl').classList.add('open');
+}
+function closeNewOrder(){
+  document.getElementById('nopOvl').classList.remove('open');
+}
+
+// === ABRIR CAJA (Web Serial ESC/POS) ===
+var _drawerPort = null;
+async function abrirCaja(){
+  var btn = document.getElementById('cajaBtn');
+  if(!navigator.serial){
+    toast('Web Serial no disponible — usa Chrome 89+ con HTTPS', true);
+    return;
+  }
+  btn.innerHTML = 'Abriendo...';
+  btn.disabled = true;
+  try {
+    if(!_drawerPort){
+      var ports = await navigator.serial.getPorts();
+      _drawerPort = ports.length ? ports[0] : await navigator.serial.requestPort();
+    }
+    await _drawerPort.open({ baudRate: 9600 });
+    var w = _drawerPort.writable.getWriter();
+    await w.write(new Uint8Array([0x1B, 0x70, 0x00, 0x32, 0xFF]));
+    w.releaseLock();
+    await _drawerPort.close();
+    toast('Caja abierta ✓');
+  } catch(e){
+    _drawerPort = null;
+    if(e.name !== 'NotFoundError'){
+      toast('Caja: ' + e.message, true);
+    }
+  } finally {
+    btn.innerHTML = '&#128181; Abrir Caja';
+    btn.disabled = false;
   }
 }
 
-function ding(){
-  try{
-    var ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[880,0],[1100,0.12],[880,0.24]].forEach(function(x){
-      var o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value=x[0]; o.type='sine';
-      g.gain.setValueAtTime(0.25,ctx.currentTime+x[1]);
-      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+x[1]+0.1);
-      o.start(ctx.currentTime+x[1]); o.stop(ctx.currentTime+x[1]+0.12);
-    });
-  }catch(e){}
-}
-
-setInterval(poll,4000);
-setInterval(render,60000);
+loadOrders();
 connect();
-poll();
 </script>
 </body>
 </html>
