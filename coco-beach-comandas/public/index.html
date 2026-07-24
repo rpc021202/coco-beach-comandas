@@ -50,7 +50,7 @@
     .cfsum{background:var(--sf2);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px;color:var(--am);min-height:34px;}
     .cfst{font-size:15px;font-weight:700;margin-bottom:10px;}
     .cfgd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-    .copt{background:var(--sf2);border:2px solid var(--br);border-radius:10px;color:var(--tx);cursor:pointer;padding:12px 8px;text-align:center;font-size:13px;font-weight:600;line-height:1.2;width:100%;}
+    .copt{background:var(--sf2);border:2px solid var(--br);border-radius:10px;color:var(--tx);cursor:pointer;padding:12px 8px;text-align:center;font-size:13px;font-weight:600;line-height:1.2;width:100%;display:flex;flex-direction:column;align-items:center;gap:3px;}
     .copt.sel{border-color:var(--gr);background:#0d2118;color:var(--gr);}
     .copt-p{font-size:11px;color:var(--mu);display:block;margin-top:3px;}
     .copt.sel .copt-p{color:var(--gr);}
@@ -106,6 +106,7 @@
     .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid var(--gr);border-radius:10px;color:var(--gr);font-size:14px;font-weight:700;padding:10px 20px;z-index:200;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;pointer-events:none;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
     .toast.err{background:#2a1a1a;border-color:var(--re);color:var(--re);}
+    .pbl{width:54px;height:32px;object-fit:contain;border-radius:4px;flex-shrink:0;}
     @media print{body{display:none;}}
   </style>
 </head>
@@ -196,6 +197,52 @@ var MZ=['Tonica','CocaCola','CocaCola Zero','Fanta naranja','Fanta limon','Sprit
   'Bitter','Monster','Solo con hielo'];
 var SC=['Pina','Coco','Fresa','Mango','Melon'];
 var SIROPES=['Sin sirope','Pina','Coco','Fresa','Mango','Melon','Mojito'];
+var BRAND_LOGOS={
+'CocaCola':'https://logo.clearbit.com/coca-cola.com',
+'CocaCola Zero':'https://logo.clearbit.com/coca-cola.com',
+'Fanta limon':'https://logo.clearbit.com/fanta.com',
+'Fanta naranja':'https://logo.clearbit.com/fanta.com',
+'Sprite':'https://logo.clearbit.com/sprite.com',
+'Aquarius limon':'https://logo.clearbit.com/aquarius.es',
+'Aquarius naranja':'https://logo.clearbit.com/aquarius.es',
+'Schweppes tonica':'https://logo.clearbit.com/schweppes.com',
+'Schweppes limon':'https://logo.clearbit.com/schweppes.com',
+'Fuze tea limon':'https://logo.clearbit.com/fuzetea.com',
+'Fuze tea maracuya':'https://logo.clearbit.com/fuzetea.com',
+'Monster':'https://logo.clearbit.com/monsterenergy.com',
+'ColaCao':'https://logo.clearbit.com/colacao.es',
+'Heineken':'https://logo.clearbit.com/heineken.com',
+'Heineken 0,0':'https://logo.clearbit.com/heineken.com',
+'Amstel Oro':'https://logo.clearbit.com/amstel.com',
+'Amstel 0,0':'https://logo.clearbit.com/amstel.com',
+'Desperados':'https://logo.clearbit.com/desperados.com',
+'Cruzcampo 1904':'https://logo.clearbit.com/cruzcampo.es',
+'18/70':'https://logo.clearbit.com/cruzcampo.es',
+'Ladron Verano':'https://logo.clearbit.com/mahou.es',
+'Ladron Manzanas':'https://logo.clearbit.com/mahou.es',
+'Martini':'https://logo.clearbit.com/martini.com',
+'Aperol Spritz':'https://logo.clearbit.com/aperol.com',
+'Jagermeister':'https://logo.clearbit.com/jagermeister.com',
+'Fireball':'https://logo.clearbit.com/fireball.com',
+'Vodka Smirnoff':'https://logo.clearbit.com/smirnoff.com',
+'Vodka Poliakov':'https://logo.clearbit.com/poliakov.com',
+'Vodka Absolut':'https://logo.clearbit.com/absolut.com',
+'Ron Brugal':'https://logo.clearbit.com/brugal.es',
+'Ron Barcelo':'https://logo.clearbit.com/ronbarcelo.com',
+'Ron Bacardi':'https://logo.clearbit.com/bacardi.com',
+'Ron Havana 7 Anos':'https://logo.clearbit.com/havanaclub.com',
+'Ginebra Beefeater':'https://logo.clearbit.com/beefeatergin.com',
+'Ginebra P.Indias Fresa':'https://logo.clearbit.com/premiumindias.com',
+'Ginebra P.Indias Melon':'https://logo.clearbit.com/premiumindias.com',
+'Ginebra Seagrams':'https://logo.clearbit.com/seagramsgin.com',
+'Ginebra Martin Millers':'https://logo.clearbit.com/martinmillersgin.com',
+'Whisky Cutty Sark':'https://logo.clearbit.com/cutty-sark.com',
+'Whisky J.Walker Red':'https://logo.clearbit.com/johnniewalker.com',
+'Whisky Jack Daniels':'https://logo.clearbit.com/jackdaniels.com',
+'Terry Centenario':'https://logo.clearbit.com/gonzalezbyass.com',
+'Ponche Caballero':'https://logo.clearbit.com/ponchescaballero.com',
+'Baileys':'https://logo.clearbit.com/baileys.com'
+};
 
 // CONFIGURADORES
 var CFGS={
@@ -381,6 +428,7 @@ function showCat(i){
       var isCfg=!!item.cfgKey;
       return '<button class="pb'+(q>0?' ic':'')+(isCfg?' cfg':'')+'" data-j="'+j+'">'
         +(q>0?'<span class="pbdg">'+q+'</span>':'')
+        +(BRAND_LOGOS[item.n]?'<img src="'+BRAND_LOGOS[item.n]+'" class="pbl" loading="lazy" onerror="this.style.display=\'none\'">':'')
         +'<span class="pn">'+item.n+'</span>'
         +(item.p>0?'<span class="pp">'+fmt(item.p)+'</span>':'<span class="pp" style="color:var(--am)">Personalizado</span>')
         +'</button>';
@@ -436,6 +484,7 @@ function rCfgStep(){
     var p=typeof o==='object'&&o.p!==undefined?o.p:null;
     var sel=cfgSel[step.id]===l;
     return '<button class="copt'+(sel?' sel':'')+'">'
+      +(BRAND_LOGOS[l]?'<img src="'+BRAND_LOGOS[l]+'" class="pbl" loading="lazy" onerror="this.style.display=\'none\'">':'')
       +l+(p!==null?'<span class="copt-p">'+fmt(p)+'</span>':'')
       +'</button>';
   }).join('');
