@@ -247,16 +247,23 @@ async function complete(id){
   }
 }
 
+var _actx=null;
+function _getCtx(){
+  if(!_actx) _actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_actx.state==='suspended') _actx.resume();
+  return _actx;
+}
+document.addEventListener('click',function(){_getCtx();},{once:true});
 function ding(){
   try{
-    var ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[880,0],[1100,0.12],[880,0.24]].forEach(function(x){
+    var ctx=_getCtx();
+    [[880,0],[1320,0.18],[1760,0.36]].forEach(function(x){
       var o=ctx.createOscillator(),g=ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
       o.frequency.value=x[0]; o.type='sine';
-      g.gain.setValueAtTime(0.25,ctx.currentTime+x[1]);
-      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+x[1]+0.1);
-      o.start(ctx.currentTime+x[1]); o.stop(ctx.currentTime+x[1]+0.12);
+      g.gain.setValueAtTime(0.8,ctx.currentTime+x[1]);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+x[1]+0.2);
+      o.start(ctx.currentTime+x[1]); o.stop(ctx.currentTime+x[1]+0.25);
     });
   }catch(e){}
 }
